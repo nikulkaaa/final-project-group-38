@@ -9,7 +9,10 @@ from autoop.functional.feature import detect_feature_types
 class TestFeatures(unittest.TestCase):
 
     def setUp(self) -> None:
-        pass
+        # load the iris dataset and access the data and the target data
+        iris = load_iris()
+        self.X = iris.data
+        self.y = iris.target
 
     def test_detect_features_continuous(self):
         iris = load_iris()
@@ -70,3 +73,6 @@ class TestFeatures(unittest.TestCase):
             self.assertEqual(detected_feature.type, "numerical")
         for detected_feature in filter(lambda x: x.name in categorical_columns, features):
             self.assertEqual(detected_feature.type, "categorical")
+
+if __name__ == '__main__':
+    unittest.main()
