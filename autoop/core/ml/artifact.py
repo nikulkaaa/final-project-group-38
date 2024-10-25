@@ -1,9 +1,12 @@
 from pydantic import BaseModel, Field
 import base64
 from typing import Optional, Any
-import pandas as pd  # Assuming this is for handling dataset-related data
+import pandas as pd 
 
 class Artifact(BaseModel):
+    """
+    Artifact class.
+    """
     name: str = Field(..., description="The name of the artifact")
     asset_path: str = Field(..., description="Path or identifier of the asset")
     data: Optional[Any] = Field(None, description="Raw data or dataset")  # New attribute to hold data

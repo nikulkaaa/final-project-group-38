@@ -9,7 +9,7 @@ from autoop.functional.feature import detect_feature_types
 class TestFeatures(unittest.TestCase):
 
     def setUp(self) -> None:
-        # load the iris dataset and access the data and the target data
+        # Load the iris dataset and access the data and the target data
         iris = load_iris()
         self.X = iris.data
         self.y = iris.target

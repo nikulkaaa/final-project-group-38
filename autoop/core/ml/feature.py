@@ -7,7 +7,7 @@ from autoop.core.ml.dataset import Dataset
 
 class Feature(BaseModel):
     name: str = Field(..., description = 'Name of the Feature')
-    type: str = Field(..., description = 'Featrue type.')
+    type: str = Field(..., description = 'Feature type.')
 
     def __str__(self):
-        raise NotImplementedError("To be implemented.")
+        return f"Feature(name='{self.name}', type='{self.type}')"

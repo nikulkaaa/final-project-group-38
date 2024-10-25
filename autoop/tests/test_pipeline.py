@@ -60,3 +60,7 @@ class TestPipeline(unittest.TestCase):
         self.assertIsNotNone(self.pipeline._predictions)
         self.assertIsNotNone(self.pipeline._metrics_results)
         self.assertEqual(len(self.pipeline._metrics_results), 1)
+
+
+if __name__ == '__main__':
+    unittest.main()
