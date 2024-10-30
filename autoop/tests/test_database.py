@@ -50,3 +50,6 @@ class TestDatabase(unittest.TestCase):
         self.db.set("collection", key, value)
         # collection should now contain the key
         self.assertIn((key, value), self.db.list("collection"))
+
+if __name__ == '__main__':
+    unittest.main()

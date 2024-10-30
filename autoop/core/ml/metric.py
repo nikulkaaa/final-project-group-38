@@ -42,6 +42,10 @@ class Metric(ABC):
     def __call__(self, predictions: np.ndarray, ground_truth: np.ndarray) -> float:
         pass
 
+    def evaluate(self, predictions: np.ndarray, ground_truth: np.ndarray) -> float:
+        """Alias for calling the metric as a function."""
+        return self.__call__(predictions, ground_truth)
+
 # Metrics for Classification
 
 class Accuracy(Metric):

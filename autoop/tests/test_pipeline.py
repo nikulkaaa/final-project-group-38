@@ -50,16 +50,19 @@ class TestPipeline(unittest.TestCase):
         self.pipeline._preprocess_features()
         self.pipeline._split_data()
         self.pipeline._train()
-        self.assertIsNotNone(self.pipeline._model.parameters)
+        self.assertIsNotNone(self.pipeline._model._parameters)
 
     def test_evaluate(self):
         self.pipeline._preprocess_features()
         self.pipeline._split_data()
         self.pipeline._train()
         self.pipeline._evaluate()
-        self.assertIsNotNone(self.pipeline._predictions)
-        self.assertIsNotNone(self.pipeline._metrics_results)
-        self.assertEqual(len(self.pipeline._metrics_results), 1)
+        self.assertIsNotNone(self.pipeline._train_predictions)
+        self.assertIsNotNone(self.pipeline._train_metrics_results)
+        self.assertEqual(len(self.pipeline._train_metrics_results), 1)
+        self.assertIsNotNone(self.pipeline._test_predictions)
+        self.assertIsNotNone(self.pipeline._test_metrics_results)
+        self.assertEqual(len(self.pipeline._test_metrics_results), 1)
 
 
 if __name__ == '__main__':

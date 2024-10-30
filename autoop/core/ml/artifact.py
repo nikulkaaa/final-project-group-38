@@ -49,3 +49,12 @@ class Artifact(BaseModel):
                 # If not a DataFrame, return as bytes
                 return base64.b64decode(self.encoded_data.encode('utf-8'))
         return None
+
+    def read(self) -> bytes:
+        """Read the artifact's data in its raw binary format."""
+        return self.data
+
+    def save(self, data: bytes) -> bytes:
+        """Save binary data to the artifact."""
+        self.data = data
+        return self.data
