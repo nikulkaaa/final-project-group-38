@@ -24,8 +24,8 @@ class Model(BaseModel, ABC):
     @is_trained.setter
     def is_trained(self, value):
         """Change the is_trained value."""
-        self._health = value
-        return self._health
+        self._is_trained = value
+        return self._is_trained
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:

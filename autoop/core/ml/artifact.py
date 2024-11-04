@@ -1,17 +1,24 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 import base64
-from typing import Optional, Any
+from typing import Optional, Any, List
 import pandas as pd 
+from abc import ABC, abstractmethod
+import uuid
 
 class Artifact(BaseModel):
     """
-    Artifact class.
+    Artifact class represents a stored asset within an AutoML system.
+    It encapsulates all necessary metadata along with the data itself.
     """
     name: str = Field(..., description="The name of the artifact")
     asset_path: str = Field(..., description="Path or identifier of the asset")
     data: Optional[Any] = Field(None, description="Raw data or dataset")  # New attribute to hold data
     encoded_data: Optional[str] = Field(None, description="Base64 encoded data")
     metadata: Optional[dict] = Field(None, description="Optional metadata associated with the artifact")
+    version: str = Field(..., description="Version of the artifact")
+    tags: List[str] = Field(default_factory=list, description="Tags for categorizing and searching the artifact")
+    type: str = Field(..., description="Type of the artifact.")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the artifact")
 
     class Config:
         arbitrary_types_allowed = True
@@ -34,24 +41,8 @@ class Artifact(BaseModel):
             # Handle string or other types of data
             self.encoded_data = str(data)
 
-    def get_data(self) -> Optional[Any]:
-        """
-        Retrieve the original data. If it was a DataFrame, decode it back to CSV format; 
-        otherwise, return the decoded data or None if no data was provided.
-        """
-        if self.encoded_data:
-            try:
-                # Attempt to decode as CSV string and return as DataFrame
-                decoded_data = base64.b64decode(self.encoded_data.encode('utf-8')).decode('utf-8')
-                # Check if it is a DataFrame-like CSV (you can adjust this as needed)
-                return pd.read_csv(pd.compat.StringIO(decoded_data))
-            except Exception:
-                # If not a DataFrame, return as bytes
-                return base64.b64decode(self.encoded_data.encode('utf-8'))
-        return None
-
     def read(self) -> bytes:
-        """Read the artifact's data in its raw binary format."""
+        """Read the artifact's data in its raw binary format in the dataset class."""
         return self.data
 
     def save(self, data: bytes) -> bytes:

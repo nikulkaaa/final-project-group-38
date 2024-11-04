@@ -15,8 +15,8 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
         List[Feature]: A list of Feature objects with names and detected types (numerical or categorical).
     """
     # Decode the byte data into a DataFrame
-    if isinstance(dataset.data, bytes):
-        data_string = io.StringIO(dataset.data.decode('utf-8'))  # Convert bytes to string
+    if isinstance(dataset, bytes):
+        data_string = io.StringIO(dataset.decode('utf-8'))  # Convert bytes to string
         df = pd.read_csv(data_string)  # Read the string as a DataFrame
     else:
         raise ValueError("Dataset data is not in the expected bytes format.")

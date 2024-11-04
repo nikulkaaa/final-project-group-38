@@ -91,6 +91,14 @@ Pipeline(
         self._test_X = [vector[int(split * len(vector)):] for vector in self._input_vectors]
         self._train_y = self._output_vector[:int(split * len(self._output_vector))]
         self._test_y = self._output_vector[int(split * len(self._output_vector)):]
+    
+    @property
+    def train_X(self):
+        return self._train_X
+
+    @property
+    def train_y(self):
+        return self._train_y
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
         return np.concatenate(vectors, axis=1)
