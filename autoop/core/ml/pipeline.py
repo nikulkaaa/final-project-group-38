@@ -85,13 +85,17 @@ Pipeline(
         self._input_vectors = [data for (feature_name, data, artifact) in input_results]
 
     def _split_data(self):
+        # Compact the input vectors into a single 2D array
+        input_matrix = self._compact_vectors(self._input_vectors)
+        target_vector = np.array(self._output_vector)
+
+        # Define the splitting index based on the split ratio
+        split_index = int(self._split * len(target_vector))
+
         # Split the data into training and testing sets
-        split = self._split
-        self._train_X = [vector[:int(split * len(vector))] for vector in self._input_vectors]
-        self._test_X = [vector[int(split * len(vector)):] for vector in self._input_vectors]
-        self._train_y = self._output_vector[:int(split * len(self._output_vector))]
-        self._test_y = self._output_vector[int(split * len(self._output_vector)):]
-    
+        self._train_X, self._test_X = input_matrix[:split_index], input_matrix[split_index:]
+        self._train_y, self._test_y = target_vector[:split_index], target_vector[split_index:]
+ 
     @property
     def train_X(self):
         return self._train_X
@@ -101,7 +105,10 @@ Pipeline(
         return self._train_y
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
-        return np.concatenate(vectors, axis=1)
+        result = np.concatenate(vectors, axis=1)
+        if result.ndim == 1:
+            result = result.reshape(-1, 1)  # Make sure it's 2D
+        return result
 
     def _train(self):
         X = self._compact_vectors(self._train_X)

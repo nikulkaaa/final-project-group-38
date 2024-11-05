@@ -49,6 +49,7 @@ task_type = None
 
 
 # Step 2: Feature Detection and Selection
+st.write("## Feature Detection")
 if st.button('Detect Features', key='detect_features'):
     features = detect_feature_types(data_bytes)
     feature_names = [f.name for f in features]
@@ -77,14 +78,14 @@ if st.button('Detect Features', key='detect_features'):
 
     # Update input and target features based on selection
     st.session_state.input_features = [f for f in features if f.name in st.session_state.input_features_names]
-    st.session_state.target_feature = [f for f in features if f.name == st.session_state.target_feature_name]
+    st.session_state.target_feature = next((f for f in features if f.name == st.session_state.target_feature_name), None)
 
     target_feature_data = data[st.session_state.target_feature_name]
     if pd.api.types.is_numeric_dtype(target_feature_data):
         task_type = 'regression' if target_feature_data.nunique() > 20 else 'classification'
     else:
         task_type = 'classification'
-    st.write(f"Detected task type: {task_type}")
+    st.success(f"Detected task type: {task_type}")
 
 # Step 3: Model Selection
 st.write("## Model Selection")
@@ -118,7 +119,7 @@ if st.button('Choose Model', key='choose_model'):
     
     # Store the model in session state to persist through reruns
     st.session_state.model = model
-    st.write(f"Model initialized: {model.__class__.__name__}")
+    st.success(f"Model initialized: {model.__class__.__name__}")
 
 
 # Step 4: Dataset Split with Slider
@@ -129,10 +130,10 @@ st.write(f"Training Data: {split_ratio * 100}%, Testing Data: {(1 - split_ratio)
 
 # Step 4: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
-    pipeline = Pipeline(metrics=[], dataset=selected_dataset, model=st.session_state.model,
+    st.session_state.pipeline = Pipeline(metrics=[], dataset=selected_dataset, model=st.session_state.model,
                             input_features=st.session_state.input_features, target_feature=st.session_state.target_feature, split=split_ratio)
-    pipeline._preprocess_features()  # Process the features as required
-    pipeline._split_data()  # Apply the split based on the specified ratio
+    st.session_state.pipeline._preprocess_features()  # Process the features as required
+    st.session_state.pipeline._split_data()  # Apply the split based on the specified ratio
     st.success("Data has been prepared and split successfully.")
 
 
@@ -148,8 +149,9 @@ selected_metrics = st.multiselect('Choose Metrics to Evaluate', options=availabl
 # Step 6: Pipeline Summary and Execution
 st.write("## Pipeline Summary")
 if st.button('Train Model', key='train_model_pipeline'):
-    results = model.fit(pipeline.train_X, pipeline.train_y) 
-    st.write("Training completed. Results:")
+    results = st.session_state.model.fit(st.session_state.pipeline.train_X, st.session_state.pipeline.train_y) 
+    st.success("Training completed")
+    st.write('### Results: ')
     st.write(results)
 
 

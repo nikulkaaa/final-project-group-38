@@ -4,6 +4,7 @@ from autoop.core.ml.dataset import Dataset
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from io import StringIO
 
 def preprocess_features(features: List[Feature], dataset: Dataset) -> List[Tuple[str, np.ndarray, dict]]:
     """Preprocess features.
@@ -14,7 +15,11 @@ def preprocess_features(features: List[Feature], dataset: Dataset) -> List[Tuple
         List[str, Tuple[np.ndarray, dict]]: List of preprocessed features. Each ndarray of shape (N, ...)
     """
     results = []
-    raw = dataset.read()
+    raw_data = dataset.read()
+    if isinstance(raw_data, bytes):
+        raw = pd.read_csv(StringIO(raw_data.decode('utf-8')))
+    else:
+        raw = raw_data
     for feature in features:
         if feature.type == "categorical":
             encoder = OneHotEncoder()

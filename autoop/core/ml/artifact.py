@@ -33,13 +33,17 @@ class Artifact(BaseModel):
         Load the data into the artifact. If it's a DataFrame or binary data, it will be handled accordingly.
         """
         if isinstance(data, pd.DataFrame):
-            # Convert DataFrame to CSV string for simplicity
-            self.encoded_data = base64.b64encode(data.to_csv(index=False).encode('utf-8')).decode('utf-8')
+            # Convert DataFrame to raw bytes and store in `data`
+            self.data = data.to_csv(index=False).encode('utf-8')
+            self.encoded_data = base64.b64encode(self.data).decode('utf-8')
         elif isinstance(data, bytes):
+            # Store raw bytes directly
+            self.data = data
             self.encoded_data = base64.b64encode(data).decode('utf-8')
         else:
-            # Handle string or other types of data
-            self.encoded_data = str(data)
+            # Convert other types to strings, store as bytes
+            self.data = str(data).encode('utf-8')
+            self.encoded_data = base64.b64encode(self.data).decode('utf-8')
 
     def read(self) -> bytes:
         """Read the artifact's data in its raw binary format in the dataset class."""
