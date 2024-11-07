@@ -3,14 +3,18 @@ import os
 from typing import List
 from glob import glob
 
+
 class NotFoundError(Exception):
-    def __init__(self, path):
+    """A custom error to show a path is not found."""
+    def __init__(self, path: str) -> None:
+        "Constructor for custom error."
         super().__init__(f"Path not found: {path}")
 
-class Storage(ABC):
 
+class Storage(ABC):
+    """The class for storage of files. It is abstract."""
     @abstractmethod
-    def save(self, data: bytes, path: str):
+    def save(self, data: bytes, path: str) -> None:
         """
         Save data to a given path
         Args:
@@ -31,7 +35,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def delete(self, path: str):
+    def delete(self, path: str) -> None:
         """
         Delete data at a given path
         Args:
@@ -50,14 +54,17 @@ class Storage(ABC):
         """
         pass
 
-class LocalStorage(Storage):
 
-    def __init__(self, base_path: str = "./assets"):
+class LocalStorage(Storage):
+    """The class for Local Storage of files"""
+    def __init__(self, base_path: str = "./assets") -> None:
+        """The constructor for the local storage."""
         self._base_path = os.path.normpath(base_path)
         if not os.path.exists(self._base_path):
             os.makedirs(self._base_path)
 
-    def save(self, data: bytes, key: str):
+    def save(self, data: bytes, key: str) -> None:
+        """Saves file at specified key."""
         path = self._join_path(key)
         # Ensure parent directories are created
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -65,24 +72,30 @@ class LocalStorage(Storage):
             f.write(data)
 
     def load(self, key: str) -> bytes:
+        """Loads file at specified key."""
         path = self._join_path(key)
         self._assert_path_exists(path)
         with open(path, 'rb') as f:
             return f.read()
 
-    def delete(self, key: str = "/"):
+    def delete(self, key: str = "/") -> None:
+        """Deletes the file at the specified key."""
         path = self._join_path(key)
         self._assert_path_exists(path)
         os.remove(path)
 
     def list(self, prefix: str = "/") -> List[str]:
+        """
+        Lists all files in the directory specified by the prefix.
+        """
         path = self._join_path(prefix)
         self._assert_path_exists(path)
         # Use os.path.join for compatibility across platforms
         keys = glob(os.path.join(path, "**", "*"), recursive=True)
-        return [os.path.relpath(p, self._base_path) for p in keys if os.path.isfile(p)]
+        return [os.path.relpath(
+            p, self._base_path) for p in keys if os.path.isfile(p)]
 
-    def _assert_path_exists(self, path: str):
+    def _assert_path_exists(self, path: str) -> None:
         if not os.path.exists(path):
             raise NotFoundError(path)
 

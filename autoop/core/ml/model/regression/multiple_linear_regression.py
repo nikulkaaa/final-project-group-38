@@ -1,5 +1,7 @@
 from autoop.core.ml.model.model import Model
 import numpy as np
+
+
 class MultipleLinearRegression(Model):
     """
     A multiple linear regression model.
@@ -44,7 +46,7 @@ class MultipleLinearRegression(Model):
         weight = np.dot(xtx_inv, xty)
 
         self._parameters = {"Weight": weight}
-    
+
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """Make predictions for the provided observations."""
         # Check if the input is and nd array

@@ -12,20 +12,21 @@ from typing import Literal
 from collections import Counter
 from pydantic import BaseModel, field_validator, PrivateAttr, Field
 
-class Model(BaseModel, ABC):
 
-    _is_trained : bool = PrivateAttr(default = False)
+class Model(BaseModel, ABC):
+    """Abstract Base Class for a Model."""
+
+    _is_trained : bool = PrivateAttr(default=False)
 
     @property
-    def is_trained(self):
+    def is_trained(self) -> Bool:
         """Get the _is_trained private attribute."""
         return deepcopy(self._is_trained)
-    
+
     @is_trained.setter
-    def is_trained(self, value):
+    def is_trained(self, value: bool) -> None:
         """Change the is_trained value."""
         self._is_trained = value
-        return self._is_trained
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
@@ -39,6 +40,7 @@ class Model(BaseModel, ABC):
 
 # Models for Classification: knn, DecisionTreeClassifier
 
+
 class KNearestNeighbors(Model):
     """
     Implement the K-Nearest Neighbors algorithm.
@@ -50,11 +52,11 @@ class KNearestNeighbors(Model):
         k: An integer storing the number of nearest neighbors,
           to consider for classification
     """
-    k: int = Field(default = 3)
+    k: int = Field(default=3)
 
     @field_validator('k')
     @classmethod
-    def validate_k(cls, k: int):
+    def validate_k(cls, k: int) -> None:
         """Validate k, if it complies to conditions."""
         if not isinstance(k, int):
             raise ValueError('k must be an integer')
@@ -63,7 +65,7 @@ class KNearestNeighbors(Model):
         if k % 2 == 0:
             raise ValueError('k must be an odd number')
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
         Fits the given dataset in the model's internal parameters.
 
@@ -85,8 +87,7 @@ class KNearestNeighbors(Model):
                 "Row (sample) and column (variable) dimensions don't align."
             )
 
-
-    def predict(self, observations: np.ndarray):
+    def predict(self, observations: np.ndarray) -> np.array:
         """
         Predict the distance for each observation.
 
@@ -123,15 +124,19 @@ class KNearestNeighbors(Model):
             predictions.append(most_common[0][0])
         return np.array(predictions)
 
+
 class DecisionTreeClassifierModel(Model):
-    def __init__(self, **kwargs):
+    """Model for the decision tree classification model"""
+    def __init__(self, **kwargs) -> None:
+        """Constructor for the decision tree classifier."""
         super().__init__()
         # Instantiate the DecisionTreeClassifier and store it in the private attribute
         self._tree = DecisionTreeClassifier(**kwargs)
-    
+
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
-        Use the built-in fit method from the DecisionTreeClassifier class from scikit-learn.
+        Use the built-in fit method from the DecisionTreeClassifier 
+        class from scikit-learn.
 
         Calculate the parameters and stores them in the parameters dictionary.
         """
@@ -145,8 +150,11 @@ class DecisionTreeClassifierModel(Model):
             raise ValueError("Model must be trained before prediction.")
         return self.model.predict(X)
 
+
 class MLPClassifierModel(Model):
-    def __init__(self, **kwargs):
+    """A classification model based on MLP."""
+    def __init__(self, **kwargs) -> None:
+        """Constructor for the MLP Classifier."""
         super().__init__()
         # Instantiate the MLPClassifier and store it in the private attribute
         self._model = MLPClassifier(**kwargs)
@@ -166,7 +174,7 @@ class MLPClassifierModel(Model):
         """Evaluate the model on the given data using the specified metric."""
         predictions = self.predict(X)
         return metric(predictions, y)
-    
+
 
 # Models for Regression: mulitiple variable regression, lasso
 
@@ -240,10 +248,10 @@ class LassoModel(Model):
     It uses the Lasso model from scikit-learn for its calculations.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the LassoWrapper model."""
         super().__init__()
-        self._lasso = sklearn.linear_model.Lasso()
+        self._lasso = Lasso()
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
@@ -272,9 +280,11 @@ class LassoModel(Model):
 
 class RadiusNeighborsModel(Model):
     """
-    A model implementing regression based on neighbors within a fixed radius. (Radius Neighbors Regressor)
+    A model implementing regression based on neighbors within a 
+    fixed radius. (Radius Neighbors Regressor)
 
-    It uses the RadiusNeighborsRegressor model from scikit-learn for its calculations.
+    It uses the RadiusNeighborsRegressor model from scikit-learn 
+    for its calculations.
     """
     _model = RadiusNeighborsRegressor()
 
@@ -283,13 +293,9 @@ class RadiusNeighborsModel(Model):
         Fits the RadiusNeighborsRegressor model to the provided data.
         """
         self._model.fit(observations, ground_truth)
-    
+
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
         Predicts target values using the fitted RadiusNeighborsRegressor model.
         """
         return self._model.predict(observations)
-    
-
-
-
