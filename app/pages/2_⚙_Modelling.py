@@ -142,8 +142,8 @@ if st.button('Choose Model', key='choose_model'):
 st.subheader("Data Split Configuration")
 split_ratio = st.slider("Set Train/Test Split Ratio",
                         min_value=0.1, max_value=0.9, value=0.8, step=0.05)
-st.write(f"Training Data: {split_ratio * 100}%,
-         Testing Data: {(1 - split_ratio) * 100}%")
+st.write(f"Training Data: {split_ratio * 100}%, "
+         f"Testing Data: {(1 - split_ratio) * 100}%")
 
 # Step 4: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):

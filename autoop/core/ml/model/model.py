@@ -8,7 +8,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import RadiusNeighborsRegressor
 import numpy as np
 from copy import deepcopy
-from typing import Literal
 from collections import Counter
 from pydantic import BaseModel, field_validator, PrivateAttr, Field
 
@@ -16,10 +15,10 @@ from pydantic import BaseModel, field_validator, PrivateAttr, Field
 class Model(BaseModel, ABC):
     """Abstract Base Class for a Model."""
 
-    _is_trained : bool = PrivateAttr(default=False)
+    _is_trained: bool = PrivateAttr(default=False)
 
     @property
-    def is_trained(self) -> Bool:
+    def is_trained(self) -> bool:
         """Get the _is_trained private attribute."""
         return deepcopy(self._is_trained)
 
@@ -130,12 +129,12 @@ class DecisionTreeClassifierModel(Model):
     def __init__(self, **kwargs) -> None:
         """Constructor for the decision tree classifier."""
         super().__init__()
-        # Instantiate the DecisionTreeClassifier and store it in the private attribute
+        # Instantiate the DecisionTreeClassifier in the private attribute
         self._tree = DecisionTreeClassifier(**kwargs)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
-        Use the built-in fit method from the DecisionTreeClassifier 
+        Use the built-in fit method from the DecisionTreeClassifier
         class from scikit-learn.
 
         Calculate the parameters and stores them in the parameters dictionary.
@@ -280,10 +279,10 @@ class LassoModel(Model):
 
 class RadiusNeighborsModel(Model):
     """
-    A model implementing regression based on neighbors within a 
+    A model implementing regression based on neighbors within a
     fixed radius. (Radius Neighbors Regressor)
 
-    It uses the RadiusNeighborsRegressor model from scikit-learn 
+    It uses the RadiusNeighborsRegressor model from scikit-learn
     for its calculations.
     """
     _model = RadiusNeighborsRegressor()

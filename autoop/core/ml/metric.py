@@ -30,8 +30,8 @@ def get_metric(name: str) -> "Metric":
     if name in metric_classes:
         return metric_classes[name]()
     else:
-        raise ValueError(f"Metric '{name}' not found. Available metrics: {
-            ', '.join(METRICS)}")
+        raise ValueError(f"Metric '{name}' not found." +
+                         f"Available metrics: {', '.join(METRICS)}")
 
 
 class Metric(ABC):

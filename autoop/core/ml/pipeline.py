@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 import pickle
 
 from autoop.core.ml.artifact import Artifact
@@ -18,7 +18,7 @@ class Pipeline():
                  model: Model,
                  input_features: List[Feature],
                  target_feature: Feature,
-                 split=0.8,
+                 split:float=0.8,
                  ) -> None:
         """Constructor for the pipeline."""
         self._dataset = dataset
@@ -29,9 +29,9 @@ class Pipeline():
         self._artifacts = {}
         self._split = split
         if target_feature.type == "categorical" and (
-            model.type != "classification"):
+                    model.type != "classification"):
             raise ValueError(
-                "Model type must be classification for categorical target feature")
+                "Model type must be classification for categorical")
         if target_feature.type == "continuous" and model.type != "regression":
             raise ValueError(
                 "Model type must be regression for continuous target feature")
@@ -55,7 +55,7 @@ Pipeline(
 
     @property
     def artifacts(self) -> List[Artifact]:
-        """Used to get the artifacts generated during the 
+        """Used to get the artifacts generated during the
         pipeline execution to be saved
         """
         artifacts = []
@@ -111,12 +111,12 @@ Pipeline(
             :split_index], target_vector[split_index:]
 
     @property
-    def train_X(self) -> ndarray:
+    def train_X(self) -> np.array:
         """Returns the observations."""
         return self._train_X
 
     @property
-    def train_y(self) -> ndarray:
+    def train_y(self) -> np.array:
         """Returns the ground truth."""
         return self._train_y
 

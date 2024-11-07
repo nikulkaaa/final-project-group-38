@@ -9,8 +9,9 @@ automl = AutoMLSystem.get_instance()
 
 datasets = automl.registry.list(type="dataset")
 
+
 def main() -> None:
-    '''Streamlit app for managing datasets.'''
+    """Streamlit app for managing datasets."""
     st.title('Dataset Management')
 
     # Access the singleton AutoMLSystem instance
@@ -19,8 +20,8 @@ def main() -> None:
     # Streamlit sidebar for navigation
     action = st.sidebar.selectbox(
         "Action",
-        ["Create Dataset","View Datasets"]
-        )
+        ["Create Dataset", "View Datasets"]
+    )
 
     if action == "Create Dataset":
         st.header("Upload and Create a New Dataset")
@@ -38,7 +39,7 @@ def main() -> None:
                     data=df,
                     name=uploaded_file.name,
                     asset_path=uploaded_file.name
-                    )
+                )
                 # Save the dataset artifact using the artifact registry
                 automl.registry.register(dataset)
                 st.success("Dataset created and saved successfully!")
@@ -52,11 +53,11 @@ def main() -> None:
             selected_dataset = st.selectbox(
                 "Select a dataset to view",
                 options=dataset_names
-                )
+            )
             dataset = next(
                 (ds for ds in datasets if ds.name == selected_dataset),
                 None
-                )
+            )
             if dataset:
                 st.write("Dataset Content:")
                 # Decode the bytes data and read it as a DataFrame

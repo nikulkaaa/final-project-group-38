@@ -17,22 +17,24 @@ class Artifact(BaseModel):
     encoded_data: Optional[str] = Field(None,
                                         description="Base64 encoded data")
     metadata: Optional[dict] = Field(None,
-                                     description="Optional metadata associated with the artifact")
+                                     description="Optional metadata"
+                                     "associated with the artifact")
     version: str = Field(..., description="Version of the artifact")
     tags: List[str] = Field(default_factory=list,
-                            description="Tags for categorizing and searching the artifact")
+                            description="Tags for categorizing"
+                            " and searching the artifact")
     type: str = Field(..., description="Type of the artifact.")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()),
                     description="Unique identifier for the artifact")
 
     class Config:
-        '''Configurate settings for Artifact.'''
+        """Configurate settings for Artifact."""
         # Allow the use of arbitrary types,
         # to store custom objects
         arbitrary_types_allowed = True
 
     def __init__(self, **kwargs)-> None:
-        '''Initialize the Artifact class.'''
+        """Initialize the Artifact class."""
         super().__init__(**kwargs)
         if self.data is not None:
             self.load_data(self.data)
@@ -57,7 +59,7 @@ class Artifact(BaseModel):
 
     def read(self) -> bytes:
         """
-        Read the artifact's data in its 
+        Read the artifact's data in its
         raw binary format in the dataset class.
         """
         return self.data

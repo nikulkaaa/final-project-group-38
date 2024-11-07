@@ -7,7 +7,7 @@ from glob import glob
 class NotFoundError(Exception):
     """A custom error to show a path is not found."""
     def __init__(self, path: str) -> None:
-        "Constructor for custom error."
+        """Constructor for custom error."""
         super().__init__(f"Path not found: {path}")
 
 

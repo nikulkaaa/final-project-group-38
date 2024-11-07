@@ -14,7 +14,7 @@ class Dataset(Artifact):
     def from_dataframe(data: pd.DataFrame,
                        name: str, asset_path: str,
                        version: str = "1.0.0") -> 'Dataset':
-        '''Static method to create a dataset from a dataframe.'''
+        """Static method to create a dataset from a dataframe."""
         return Dataset(
             name=name,
             asset_path=asset_path,
@@ -23,13 +23,13 @@ class Dataset(Artifact):
         )
 
     def read(self) -> pd.DataFrame:
-        '''Get the values store in the data attribute.'''
+        """Get the values store in the data attribute."""
         bytes = self.data
         csv = bytes.decode()
         return pd.read_csv(io.StringIO(csv))
 
     def save(self, data: pd.DataFrame) -> bytes:
-        '''Save the data to the dataset as bytes.'''
+        """Save the data to the dataset as bytes."""
         bytes = data.to_csv(index=False).encode()
         self.data = bytes
         return self.data
