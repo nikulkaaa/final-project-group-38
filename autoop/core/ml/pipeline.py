@@ -18,7 +18,7 @@ class Pipeline():
                  model: Model,
                  input_features: List[Feature],
                  target_feature: Feature,
-                 split:float=0.8,
+                 split: float = 0.8,
                  ) -> None:
         """Constructor for the pipeline."""
         self._dataset = dataset
@@ -29,7 +29,7 @@ class Pipeline():
         self._artifacts = {}
         self._split = split
         if target_feature.type == "categorical" and (
-                    model.type != "classification"):
+                model.type != "classification"):
             raise ValueError(
                 "Model type must be classification for categorical")
         if target_feature.type == "continuous" and model.type != "regression":

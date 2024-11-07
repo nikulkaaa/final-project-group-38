@@ -4,14 +4,18 @@ import pandas as pd
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 from autoop.functional.feature import detect_feature_types
-from autoop.core.ml.model.model import KNearestNeighbors, DecisionTreeClassifierModel
-from autoop.core.ml.model.model import MLPClassifierModel, MultipleLinearRegression
-from autoop.core.ml.model.model import LassoModel, RadiusNeighborsModel
+from autoop.core.ml.model.model import KNearestNeighbors
+from autoop.core.ml.model.model import DecisionTreeClassifierModel
+from autoop.core.ml.model.model import MLPClassifierModel
+from autoop.core.ml.model.model import MultipleLinearRegression
+from autoop.core.ml.model.model import RadiusNeighborsModel
+from autoop.core.ml.model.model import LassoModel
 from autoop.core.ml.pipeline import Pipeline
 from io import BytesIO
 
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
+
 
 def write_helper_text(text: str) -> None:
     """Write text when needed to inform the user."""
@@ -20,8 +24,8 @@ def write_helper_text(text: str) -> None:
 
 st.write("# ⚙ Modelling")
 write_helper_text("In this section,"
-                   "you can design a machine learning "
-                   "pipeline to train a model on a dataset.")
+                  "you can design a machine learning "
+                  "pipeline to train a model on a dataset.")
 
 automl = AutoMLSystem.get_instance()
 
@@ -31,7 +35,7 @@ datasets = automl.registry.list(type="dataset")
 Things to take care of:
 - Select Model based on Model Type (done?)
 - Make a check for the task type from the data (continuous vs categorical)
-- Take care of creating a specific model 
+- Take care of creating a specific model
 and fitting it instead of training it on specific features
 
 Regression Models: Multiple Linear Regression, Lasso, Radius Neighbors
@@ -85,11 +89,11 @@ if st.button('Detect Features', key='detect_features'):
 
     # Update input and target features based on selection
     st.session_state.input_features = (
-        [f for f in features 
+        [f for f in features
          if f.name in st.session_state.input_features_names]
-         )
+    )
     st.session_state.target_feature = next(
-        (f for f in features 
+        (f for f in features
          if f.name == st.session_state.target_feature_name),
         None)
 
@@ -98,7 +102,7 @@ if st.button('Detect Features', key='detect_features'):
         task_type = (
             'regression' if target_feature_data.nunique() > 20
             else 'classification'
-            )
+        )
     else:
         task_type = 'classification'
     st.success(f"Detected task type: {task_type}")
@@ -147,12 +151,15 @@ st.write(f"Training Data: {split_ratio * 100}%, "
 
 # Step 4: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
-    st.session_state.pipeline = Pipeline(metrics=[],
-                                         dataset=selected_dataset,
-                                         model=st.session_state.model,
-                                         input_features=st.session_state.input_features,
-                                         target_feature=st.session_state.target_feature,
-                                         split=split_ratio)
+    st.session_state.pipeline = Pipeline(
+        metrics=[],
+        dataset=selected_dataset,
+        model=st.session_state.model,
+        input_features=st.session_state.input_features,
+        target_feature=st.session_state.target_feature,
+        split=split_ratio
+    )
+
     # Preprocess the features
     st.session_state.pipeline._preprocess_features()
     # Apply the split based on the specified ratio
@@ -172,7 +179,7 @@ selected_metrics = st.multiselect(
     'Choose Metrics to Evaluate',
     options=available_metrics,
     default=available_metrics[0]
-    )
+)
 
 
 # Step 6: Pipeline Summary and Execution
@@ -181,12 +188,10 @@ if st.button('Train Model', key='train_model_pipeline'):
     results = st.session_state.model.fit(
         st.session_state.pipeline.train_X,
         st.session_state.pipeline.train_y
-        )
+    )
     st.success("Training completed")
     st.write('### Results: ')
     st.write(results)
-
-
 
 # Observations: When you call _split data in pipeline: train_X
 # Ground truth: train_Y

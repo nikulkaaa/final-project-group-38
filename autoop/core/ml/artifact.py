@@ -33,7 +33,7 @@ class Artifact(BaseModel):
         # to store custom objects
         arbitrary_types_allowed = True
 
-    def __init__(self, **kwargs)-> None:
+    def __init__(self, **kwargs) -> None:
         """Initialize the Artifact class."""
         super().__init__(**kwargs)
         if self.data is not None:

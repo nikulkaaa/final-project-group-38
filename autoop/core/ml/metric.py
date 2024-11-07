@@ -30,8 +30,10 @@ def get_metric(name: str) -> "Metric":
     if name in metric_classes:
         return metric_classes[name]()
     else:
-        raise ValueError(f"Metric '{name}' not found." +
-                         f"Available metrics: {', '.join(METRICS)}")
+        error_message = (
+            f"Metric '{name}' not found. "
+            f"Available metrics: {', '.join(METRICS)}")
+        raise ValueError(error_message)
 
 
 class Metric(ABC):
@@ -42,13 +44,13 @@ class Metric(ABC):
     return a real number
     """
     @abstractmethod
-    def __call__(self, predictions: np.ndarray, 
+    def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
         """Abstract call method."""
         pass
 
-    def evaluate(self, predictions: np.ndarray, 
-    ground_truth: np.ndarray) -> float:
+    def evaluate(self, predictions: np.ndarray,
+                            ground_truth: np.ndarray) -> float:
         """Alias for calling the metric as a function."""
         return self.__call__(predictions, ground_truth)
 
@@ -58,7 +60,7 @@ class Metric(ABC):
 class Accuracy(Metric):
     """Class to measure the accuracy of predictions made by the model."""
 
-    def __call__(self, predictions: np.ndarray, 
+    def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
         """Calculates and returns the accuracy of predictions."""
         return np.sum(predictions == ground_truth) / len(predictions)
@@ -66,7 +68,7 @@ class Accuracy(Metric):
 
 class AveragePrecision(Metric):
     """Class to calculate the Average Precision (AP) from prediction scores."""
-    def __call__(self, predictions: np.ndarray, 
+    def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
         """Calculates the average precision score."""
         # Sort scores and corresponding truth values
@@ -87,7 +89,7 @@ class AveragePrecision(Metric):
         # prepend 0 to have the same length as precision
         recall_change = np.diff(recall_at_t, prepend=0)  
 
-        # Calculate average precision as the sum of 
+        # Calculate average precision as the sum of
         # products of precision and recall change
         average_precision = np.sum(precision_at_t * recall_change)
         return average_precision
@@ -95,9 +97,9 @@ class AveragePrecision(Metric):
 
 class LogLoss(Metric):
     """Class to calculate the logarithmic loss for classification."""
-    def __call__(self, predictions: np.ndarray, 
+    def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
-        """Calculates and returns the logarithmic loss to 
+        """Calculates and returns the logarithmic loss to
         captrue confidence in predictions."""
         # Clip predictions to prevent log(0) and ensure numerical stability
         eps = 1e-15
@@ -112,21 +114,21 @@ class LogLoss(Metric):
 
 # Metrics for Regression
 class MeanSquaredError(Metric):
-    """Class to show the Mean Squared Error 
+    """Class to show the Mean Squared Error
     between predicted and actual values."""
 
-    def __call__(self, predictions: np.ndarray, 
+    def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
-        """Calculates and returns the Mean Squared Error 
+        """Calculates and returns the Mean Squared Error
         between predicted and actual values."""
         return np.sum((predictions - ground_truth)**2) / len(predictions)
 
 
 class RSquared(Metric):
-    """Class to show how well predictions approximate 
+    """Class to show how well predictions approximate
     actual values based on the R-squared statistic."""
-    def __call__(self, predictions: np.ndarray, 
-    ground_truth: np.ndarray) -> float:
+    def __call__(self, predictions: np.ndarray,
+                            ground_truth: np.ndarray) -> float:
         """Calculates and returns the Mean Squared 
         Error between predicted and actual values."""
         # Calculate the sum of squared residuals
@@ -140,10 +142,10 @@ class RSquared(Metric):
 
 
 class MeanAbsoluteError(Metric):
-    """Class to calculate the Mean Absolute Error (MAE) 
+    """Class to calculate the Mean Absolute Error (MAE)
     between predicted and actual values."""
-    def __call__(self, predictions: np.ndarray, 
+    def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
-        """Calculates and returns the Mean Absolute Error 
+        """Calculates and returns the Mean Absolute Error
         between predictions and ground truth values."""
         return np.mean(np.abs(predictions - ground_truth))

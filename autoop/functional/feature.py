@@ -31,7 +31,7 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
         if pd.api.types.is_numeric_dtype(df[column]):
             feature_type = 'numerical'
         elif pd.api.types.is_categorical_dtype(df[column]) or df[
-                        column].dtype == object:
+                column].dtype == object:
             feature_type = 'categorical'
         else:
             feature_type = 'unknown'  # Fallback for any unexpected dtype
