@@ -7,15 +7,17 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from io import StringIO
 
 
-def preprocess_features(features: List[Feature], dataset: Dataset) -> List[
-        Tuple[str, np.ndarray, dict]]:
+def preprocess_features(features: List[Feature], dataset: Dataset, one_hot_encode_target: bool = False) -> List[Tuple[str, np.ndarray, dict]]:
     """Preprocess features.
+    
     Args:
         features (List[Feature]): List of features.
         dataset (Dataset): Dataset object.
+        one_hot_encode_target (bool): Whether to one-hot encode the target feature.
+        
     Returns:
-        List[str, Tuple[np.ndarray, dict]]: List of preprocessed features.
-        Each ndarray of shape (N, ...)
+        List[Tuple[str, np.ndarray, dict]]: List of preprocessed features.
+        Each tuple contains feature name, data array, and an artifact dictionary.
     """
     results = []
     raw_data = dataset.read()
@@ -23,21 +25,27 @@ def preprocess_features(features: List[Feature], dataset: Dataset) -> List[
         raw = pd.read_csv(StringIO(raw_data.decode('utf-8')))
     else:
         raw = raw_data
+
     for feature in features:
         if feature.type == "categorical":
-            encoder = OneHotEncoder()
-            data = encoder.fit_transform(
-                raw[feature.name].values.reshape(-1, 1)).toarray()
-            aritfact = {"type": "OneHotEncoder", "encoder":
-                        encoder.get_params()}
-            results.append((feature.name, data, aritfact))
-        if feature.type == "numerical":
+            if one_hot_encode_target:
+                # Use integer encoding for the target feature
+                data = raw[feature.name].astype('category').cat.codes.values.reshape(-1, 1)
+                artifact = {"type": "LabelEncoding"}
+                results.append((feature.name, data, artifact))
+            else:
+                encoder = OneHotEncoder(sparse_output=False)
+                data = encoder.fit_transform(raw[feature.name].values.reshape(-1, 1)).toarray()
+                artifact = {"type": "OneHotEncoder", "encoder": encoder}
+                results.append((feature.name, data, artifact))
+
+        elif feature.type == "numerical" or (feature.is_target and not one_hot_encode_target):
+            # Process target as numerical if not one-hot encoding (e.g., for regression)
             scaler = StandardScaler()
-            data = scaler.fit_transform(raw[feature.name].
-                                        values.reshape(-1, 1))
-            artifact = {"type": "StandardScaler", "scaler":
-                        scaler.get_params()}
+            data = raw[feature.name].values.reshape(-1, 1)  # No transformation for regression
+            artifact = {"type": "None", "scaler": None}
             results.append((feature.name, data, artifact))
+
     # Sort for consistency
     results = list(sorted(results, key=lambda x: x[0]))
     return results

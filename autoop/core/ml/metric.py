@@ -20,12 +20,12 @@ def get_metric(name: str) -> "Metric":
     """
 
     metric_classes = {
-        "accuracy": Accuracy,
-        "average_precision": AveragePrecision,
-        "log_loss": LogLoss,
-        "mean_squared_error": MeanSquaredError,
-        "r_squared": RSquared,
-        "mean_absolute_error": MeanAbsoluteError
+        "Accuracy": Accuracy,
+        "Average Precision": AveragePrecision,
+        "Log Loss": LogLoss,
+        "Mean Squared Error": MeanSquaredError,
+        "R squared": RSquared,
+        "Mean Absolute Error": MeanAbsoluteError
     }
     if name in metric_classes:
         return metric_classes[name]()
@@ -49,13 +49,14 @@ class Metric(ABC):
         """Abstract call method."""
         pass
 
-    def evaluate(self, predictions: np.ndarray,
-                            ground_truth: np.ndarray) -> float:
+    '''def evaluate(self, predictions: np.ndarray,
+            ground_truth: np.ndarray) -> float:
         """Alias for calling the metric as a function."""
-        return self.__call__(predictions, ground_truth)
+        if ground_truth.ndim > 1 and ground_truth.shape[1] == 2:
+            ground_truth = ground_truth.ravel()
+        return self.__call__(predictions, ground_truth)'''
 
 # Metrics for Classification
-
 
 class Accuracy(Metric):
     """Class to measure the accuracy of predictions made by the model."""
@@ -63,7 +64,7 @@ class Accuracy(Metric):
     def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
         """Calculates and returns the accuracy of predictions."""
-        return np.sum(predictions == ground_truth) / len(predictions)
+        return np.sum(predictions == ground_truth) / len(ground_truth)
 
 
 class AveragePrecision(Metric):
@@ -71,6 +72,7 @@ class AveragePrecision(Metric):
     def __call__(self, predictions: np.ndarray,
                  ground_truth: np.ndarray) -> float:
         """Calculates the average precision score."""
+
         # Sort scores and corresponding truth values
         sorted_indices = np.argsort(predictions)[::-1]
         ground_truth_sorted = ground_truth[sorted_indices]
@@ -87,7 +89,7 @@ class AveragePrecision(Metric):
 
         # Calculate the changes in recall
         # prepend 0 to have the same length as precision
-        recall_change = np.diff(recall_at_t, prepend=0)  
+        recall_change = np.diff(recall_at_t, prepend=0)
 
         # Calculate average precision as the sum of
         # products of precision and recall change
@@ -97,13 +99,16 @@ class AveragePrecision(Metric):
 
 class LogLoss(Metric):
     """Class to calculate the logarithmic loss for classification."""
-    def __call__(self, predictions: np.ndarray,
-                 ground_truth: np.ndarray) -> float:
-        """Calculates and returns the logarithmic loss to
-        captrue confidence in predictions."""
+    def __call__(self, predictions: np.ndarray, ground_truth: np.ndarray) -> float:
+        """Calculates and returns the logarithmic loss to capture confidence in predictions."""
+
         # Clip predictions to prevent log(0) and ensure numerical stability
         eps = 1e-15
         predictions = np.clip(predictions, eps, 1 - eps)
+
+        # Ensure predictions have two columns for binary classification
+        if predictions.ndim == 1:
+            predictions = np.column_stack((1 - predictions, predictions))
 
         # Convert ground truth to match the shape of predictions
         ground_truth = np.eye(predictions.shape[1])[ground_truth]
@@ -128,8 +133,8 @@ class RSquared(Metric):
     """Class to show how well predictions approximate
     actual values based on the R-squared statistic."""
     def __call__(self, predictions: np.ndarray,
-                            ground_truth: np.ndarray) -> float:
-        """Calculates and returns the Mean Squared 
+                 ground_truth: np.ndarray) -> float:
+        """Calculates and returns the Mean Squared
         Error between predicted and actual values."""
         # Calculate the sum of squared residuals
         ss_res = np.sum((ground_truth - predictions)**2)

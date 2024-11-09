@@ -84,17 +84,33 @@ Pipeline(
         self._artifacts[name] = artifact
 
     def _preprocess_features(self) -> None:
+        # Pass a flag to indicate if the target should be one-hot encoded
+        is_classification = (self._target_feature.type == 'categorical')
         (target_feature_name, target_data, artifact) = preprocess_features(
-            [self._target_feature], self._dataset)[0]
+            [self._target_feature], self._dataset, one_hot_encode_target=is_classification)[0]
+
         self._register_artifact(target_feature_name, artifact)
-        input_results = preprocess_features(
-            self._input_features, self._dataset)
+
+        # Preprocess input features without additional flags for one-hot encoding
+        input_results = preprocess_features(self._input_features, self._dataset)
         for (feature_name, data, artifact) in input_results:
             self._register_artifact(feature_name, artifact)
-        # Get the input vectors and output vector, sort by feature name
+
+        # Assign input and output vectors
         self._output_vector = target_data
-        self._input_vectors = [data for (
-            feature_name, data, artifact) in input_results]
+        self._input_vectors = [data for (feature_name, data, artifact) in input_results]
+
+        # Ensure input vectors have matching number of rows
+        if len(self._input_vectors) > 0:
+            num_rows = self._input_vectors[0].shape[0]
+            for vector in self._input_vectors:
+                if vector.shape[0] != num_rows:
+                    raise ValueError("Input vectors have different number of rows.")
+        
+        # Log the shape for debugging
+        if self._output_vector.shape[1] > 1 and not is_classification:
+            raise ValueError(f"Unexpected output vector shape {self._output_vector.shape} for regression.")
+        #raise ValueError(f"Output shape: {self._output_vector.shape} ")
 
     def _split_data(self) -> None:
         # Compact the input vectors into a single 2D array
@@ -119,13 +135,14 @@ Pipeline(
     def train_y(self) -> np.array:
         """Returns the ground truth."""
         return self._train_y
-
+    
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
-        result = np.concatenate(vectors, axis=1)
-        if result.ndim == 1:
-            result = result.reshape(-1, 1)  # Make sure it's 2D
+        # Convert each vector to a 2D array if it is 1D
+        reshaped_vectors = [vector.reshape(-1, 1) if vector.ndim == 1 else vector for vector in vectors]
+        
+        result = np.concatenate(reshaped_vectors, axis=1)
         return result
-
+    
     def _train(self) -> None:
         X = self._compact_vectors(self._train_X)
         Y = self._train_y
@@ -139,7 +156,7 @@ Pipeline(
 
         self._test_metrics_results = []
         for metric in self._metrics:
-            result = metric.evaluate(test_predictions, test_Y)
+            result = metric(test_predictions, test_Y)
             self._test_metrics_results.append((metric, result))
 
         # Evaluate on the training set
@@ -149,7 +166,7 @@ Pipeline(
 
         self._train_metrics_results = []
         for metric in self._metrics:
-            result = metric.evaluate(train_predictions, train_Y)
+            result = metric(train_predictions, train_Y)
             self._train_metrics_results.append((metric, result))
 
         # Store the predictions separately for further use if needed
@@ -157,9 +174,7 @@ Pipeline(
         self._test_predictions = test_predictions
 
     def execute(self) -> Dict[str, Any]:
-        """
-        Executes the model training and evaluation pipeline.
-        """
+        
         self._preprocess_features()
         self._split_data()
         self._train()
