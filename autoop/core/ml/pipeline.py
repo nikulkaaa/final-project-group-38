@@ -110,7 +110,6 @@ Pipeline(
         # Log the shape for debugging
         if self._output_vector.shape[1] > 1 and not is_classification:
             raise ValueError(f"Unexpected output vector shape {self._output_vector.shape} for regression.")
-        #raise ValueError(f"Output shape: {self._output_vector.shape} ")
 
     def _split_data(self) -> None:
         # Compact the input vectors into a single 2D array
@@ -135,14 +134,16 @@ Pipeline(
     def train_y(self) -> np.array:
         """Returns the ground truth."""
         return self._train_y
-    
+
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
         # Convert each vector to a 2D array if it is 1D
-        reshaped_vectors = [vector.reshape(-1, 1) if vector.ndim == 1 else vector for vector in vectors]
-        
+        reshaped_vectors = [vector.reshape(-1, 1)
+                            if vector.ndim == 1 else vector
+                            for vector in vectors]
+
         result = np.concatenate(reshaped_vectors, axis=1)
         return result
-    
+
     def _train(self) -> None:
         X = self._compact_vectors(self._train_X)
         Y = self._train_y
@@ -174,7 +175,7 @@ Pipeline(
         self._test_predictions = test_predictions
 
     def execute(self) -> Dict[str, Any]:
-        
+        """Function to execute the pipeline processes."""
         self._preprocess_features()
         self._split_data()
         self._train()

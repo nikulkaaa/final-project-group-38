@@ -172,14 +172,14 @@ selected_metrics = []
 for metric in selected_metrics_names:
     selected_metrics.append(get_metric(metric))
 
-# Step 4: Dataset Split with Slider
+# Step 6: Dataset Split with Slider
 st.subheader("Data Split Configuration")
 split_ratio = st.slider("Set Train/Test Split Ratio",
                         min_value=0.1, max_value=0.9, value=0.8, step=0.05)
 st.write(f"Training Data: {split_ratio * 100}%, "
          f"Testing Data: {(1 - split_ratio) * 100}%")
 
-# Step 4: Prepare and split the data
+# Step 7: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
 
     st.session_state.pipeline = Pipeline(
@@ -197,7 +197,8 @@ if st.button('Prepare and Split Data', key='prepare_split'):
     st.session_state.pipeline._split_data()
     st.success("Data has been prepared and split successfully.")
 
-# Step 6: Pipeline Summary
+
+# Step 8: Pipeline Summary
 # Check if the pipeline has been created
 if 'pipeline' in st.session_state:
     pipeline = st.session_state.pipeline
@@ -224,24 +225,24 @@ if 'pipeline' in st.session_state:
 
     # Add button to execute the model training
     if st.button('Train Model', key='train_model_pipeline'):
-        results = st.session_state.pipeline.execute()
+        st.session_state.results = st.session_state.pipeline.execute()
         
         st.success("Training completed")
         st.write('### Training Metrics:')
         st.write('**Train Metrics:**')
-        for metric, result in results.get('train_metrics'):
+        for metric, result in st.session_state.results.get('train_metrics'):
             st.write(f"{metric.__class__.__name__}: {result:.5f}")
 
         st.write('**Test Metrics:**')
-        for metric, result in results['test_metrics']:
+        for metric, result in st.session_state.results['test_metrics']:
             st.write(f"{metric.__class__.__name__}: {result:.5f}")
 
         st.write('### Predictions:')
         st.write('**Train Predictions:**')
-        st.write(results['train_predictions'])
+        st.write(st.session_state.results['train_predictions'])
         
         st.write('**Test Predictions:**')
-        st.write(results['test_predictions'])
+        st.write(st.session_state.results['test_predictions'])
 
 else:
     st.warning("Please prepare and split the data before training the model.")
@@ -260,6 +261,13 @@ if st.button('Save Pipeline', key='save_pipeline'):
         input_features = [f.name for f in st.session_state.input_features] if hasattr(st.session_state, 'input_features') else []
         target_feature = st.session_state.target_feature.name if hasattr(st.session_state, 'target_feature') else ''
         
+        # Get the metrics used for evaluation
+        metric_values = {}
+        for metric, result in st.session_state.results.get('train_metrics'):
+            metric_name = metric.__class__.__name__
+            metric_values[metric_name] = result
+        
+        # Create an arifact with that data
         artifact = Artifact(
             name=pipeline_name,
             version=pipeline_version,
@@ -268,7 +276,7 @@ if st.button('Save Pipeline', key='save_pipeline'):
             metadata={
             "input_features": input_features,
             "target_feature": target_feature,
-            "metrics": selected_metrics
+            "metric_values": metric_values,
             },
             asset_path=f"pipelines/{pipeline_name}_v{pipeline_version}")
         automl.registry.register(artifact)

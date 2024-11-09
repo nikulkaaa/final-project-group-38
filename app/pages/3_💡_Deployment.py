@@ -28,20 +28,19 @@ if pipelines:
             try:
                 actual_pipeline = pickle.loads(artifact.data)  # Deserialize the pipeline
                 
-                st.write("### Metadata:")
-                st.write(artifact.metadata)
-                
                 # Retrieve metadata
                 input_features = artifact.metadata.get("input_features", [])
                 target_feature = artifact.metadata.get("target_feature", "")
-                metrics = artifact.metadata.get("metrics", [])
+                metrics = artifact.metadata.get("metric_values", {})
                 
                 st.write("### Pipeline Summary:")
                 st.write(f"**Name:** {artifact.name}")
                 st.write(f"**Model Type:** {actual_pipeline.model.__class__.__name__}")
-                st.write(f"**Input Features:** {[f.name for f in actual_pipeline.input_features]}")
-                st.write(f"**Target Feature:** {actual_pipeline.target_feature.name}")
-                st.write(f"**Metrics:** {[metric.__class__.__name__ for metric in actual_pipeline.metrics]}")
+                st.write(f"**Input Features:** {[f for f in input_features]}")
+                st.write(f"**Target Feature:** {target_feature}")
+                st.write("### Metrics and Values:")
+                for metric, value in metrics.items():
+                    st.write(f"**{metric}:** {value}")
 
                 # Step 3: Provide CSV for Predictions
                 st.write("### Make Predictions")
@@ -65,3 +64,4 @@ if pipelines:
             st.error("Pipeline not found.")
 else:
     st.write("No saved pipelines available.")
+
