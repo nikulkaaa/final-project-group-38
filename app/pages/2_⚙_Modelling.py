@@ -13,6 +13,7 @@ from autoop.core.ml.model.model import RadiusNeighborsModel
 from autoop.core.ml.model.model import LassoModel
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.metric import get_metric
+from autoop.core.ml.metric import get_metric
 from io import BytesIO
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
@@ -69,7 +70,27 @@ if 'target_feature_name' not in st.session_state:
     st.session_state.target_feature_name = None
 
 # Detect features when the button is pressed
+
+# Ensure session state attributes are initialized
+if 'features' not in st.session_state or st.session_state.features is None:
+    st.session_state.features = []
+if 'feature_names' not in st.session_state or st.session_state.features is None:
+    st.session_state.feature_names = []
+
+# Initialize session state attributes if not set by the button
+if 'input_features' not in st.session_state:
+    st.session_state.input_features = []
+if 'target_feature' not in st.session_state:
+    st.session_state.target_feature = None
+if 'input_features_names' not in st.session_state:
+    st.session_state.input_features_names = []
+if 'target_feature_name' not in st.session_state:
+    st.session_state.target_feature_name = None
+
+# Detect features when the button is pressed
 if st.button('Detect Features', key='detect_features'):
+    st.session_state.features = detect_feature_types(data_bytes)
+    st.session_state.feature_names = [f.name for f in st.session_state.features]
     st.session_state.features = detect_feature_types(data_bytes)
     st.session_state.feature_names = [f.name for f in st.session_state.features]
 
@@ -79,7 +100,24 @@ if st.button('Detect Features', key='detect_features'):
 
     st.session_state.input_features_names = st.session_state.feature_names[:-1]
     st.session_state.target_feature_name = st.session_state.feature_names[-1]
+    # Initialize session state attributes based on detected features
+    st.session_state.input_features = st.session_state.features[:-1]
+    st.session_state.target_feature = st.session_state.features[-1]
 
+    st.session_state.input_features_names = st.session_state.feature_names[:-1]
+    st.session_state.target_feature_name = st.session_state.feature_names[-1]
+
+# Allow user to select input and target features
+st.session_state.input_features_names = st.multiselect(
+    'Select Input Features',
+    options=st.session_state.feature_names,
+    default=st.session_state.input_features_names
+)
+st.session_state.target_feature_name = st.selectbox(
+    'Select Target Feature',
+    options=st.session_state.feature_names,
+    index=st.session_state.feature_names.index(st.session_state.target_feature_name) if st.session_state.target_feature_name else 0
+)
 # Allow user to select input and target features
 st.session_state.input_features_names = st.multiselect(
     'Select Input Features',
@@ -102,7 +140,19 @@ st.session_state.target_feature = next(
      if f.name == st.session_state.target_feature_name),
     None
 )
+# Update input and target features based on selection
+st.session_state.input_features = [
+    f for f in st.session_state.features
+    if f.name in st.session_state.input_features_names
+]
+st.session_state.target_feature = next(
+    (f for f in st.session_state.features
+     if f.name == st.session_state.target_feature_name),
+    None
+)
 
+# Detect task type based on selected target feature
+if st.session_state.target_feature_name:
 # Detect task type based on selected target feature
 if st.session_state.target_feature_name:
     target_feature_data = data[st.session_state.target_feature_name]
@@ -185,6 +235,7 @@ if st.button('Prepare and Split Data', key='prepare_split'):
         available_metrics.append(get_metric(metric))
 
     st.session_state.pipeline = Pipeline(
+        metrics=available_metrics,
         metrics=available_metrics,
         dataset=selected_dataset,
         model=st.session_state.model,

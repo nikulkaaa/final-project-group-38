@@ -3,13 +3,13 @@ from typing import Any
 import numpy as np
 
 METRICS = [
-    "accuracy",
-    "average_precision",
-    "log_loss",
-    "mean_squared_error",
-    "r_squared",
-    "mean_absolute_error"
-]   # add the names (in strings) of the metrics you implement
+    "Accuracy",
+    "Average Precision",
+    "Log Loss",
+    "Mean Squared Error",
+    "R Squared",
+    "Mean Absolute Error"
+]   
 
 
 def get_metric(name: str) -> "Metric":
