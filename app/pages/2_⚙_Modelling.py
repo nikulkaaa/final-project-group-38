@@ -3,8 +3,8 @@ import pandas as pd
 
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
-from autoop.core.ml.artifact import Artifact
 from autoop.functional.feature import detect_feature_types
+from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.model.model import KNearestNeighbors
 from autoop.core.ml.model.model import DecisionTreeClassifierModel
 from autoop.core.ml.model.model import MLPClassifierModel
@@ -13,8 +13,9 @@ from autoop.core.ml.model.model import RadiusNeighborsModel
 from autoop.core.ml.model.model import LassoModel
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.metric import get_metric
-from autoop.core.ml.metric import get_metric
 from io import BytesIO
+import pickle
+
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
 
@@ -70,29 +71,9 @@ if 'target_feature_name' not in st.session_state:
     st.session_state.target_feature_name = None
 
 # Detect features when the button is pressed
-
-# Ensure session state attributes are initialized
-if 'features' not in st.session_state or st.session_state.features is None:
-    st.session_state.features = []
-if 'feature_names' not in st.session_state or st.session_state.features is None:
-    st.session_state.feature_names = []
-
-# Initialize session state attributes if not set by the button
-if 'input_features' not in st.session_state:
-    st.session_state.input_features = []
-if 'target_feature' not in st.session_state:
-    st.session_state.target_feature = None
-if 'input_features_names' not in st.session_state:
-    st.session_state.input_features_names = []
-if 'target_feature_name' not in st.session_state:
-    st.session_state.target_feature_name = None
-
-# Detect features when the button is pressed
 if st.button('Detect Features', key='detect_features'):
     st.session_state.features = detect_feature_types(data_bytes)
     st.session_state.feature_names = [f.name for f in st.session_state.features]
-    st.session_state.features = detect_feature_types(data_bytes)
-    st.session_state.feature_names = [f.name for f in st.session_state.features]
 
     # Initialize session state attributes based on detected features
     st.session_state.input_features = st.session_state.features[:-1]
@@ -100,24 +81,7 @@ if st.button('Detect Features', key='detect_features'):
 
     st.session_state.input_features_names = st.session_state.feature_names[:-1]
     st.session_state.target_feature_name = st.session_state.feature_names[-1]
-    # Initialize session state attributes based on detected features
-    st.session_state.input_features = st.session_state.features[:-1]
-    st.session_state.target_feature = st.session_state.features[-1]
 
-    st.session_state.input_features_names = st.session_state.feature_names[:-1]
-    st.session_state.target_feature_name = st.session_state.feature_names[-1]
-
-# Allow user to select input and target features
-st.session_state.input_features_names = st.multiselect(
-    'Select Input Features',
-    options=st.session_state.feature_names,
-    default=st.session_state.input_features_names
-)
-st.session_state.target_feature_name = st.selectbox(
-    'Select Target Feature',
-    options=st.session_state.feature_names,
-    index=st.session_state.feature_names.index(st.session_state.target_feature_name) if st.session_state.target_feature_name else 0
-)
 # Allow user to select input and target features
 st.session_state.input_features_names = st.multiselect(
     'Select Input Features',
@@ -140,19 +104,7 @@ st.session_state.target_feature = next(
      if f.name == st.session_state.target_feature_name),
     None
 )
-# Update input and target features based on selection
-st.session_state.input_features = [
-    f for f in st.session_state.features
-    if f.name in st.session_state.input_features_names
-]
-st.session_state.target_feature = next(
-    (f for f in st.session_state.features
-     if f.name == st.session_state.target_feature_name),
-    None
-)
 
-# Detect task type based on selected target feature
-if st.session_state.target_feature_name:
 # Detect task type based on selected target feature
 if st.session_state.target_feature_name:
     target_feature_data = data[st.session_state.target_feature_name]
@@ -165,17 +117,15 @@ if st.session_state.target_feature_name:
         task_type = 'classification'
     st.success(f"Detected task type: {task_type}")
 
-
 # Step 3: Model Selection
 st.write("## Model Selection")
 
 
 if task_type == 'classification':
     model_types = ['Decision Tree', 'MLP', 'KNN']
-elif task_type == 'regression':
+else:
     model_types = ['MLR', 'Lasso', 'Radius Neighbors']
-else: 
-    st.warning("Please detect features of the dataset.")
+
 
 model_type = st.selectbox('Choose Model', model_types)
 
@@ -195,47 +145,27 @@ if st.button('Choose Model', key='choose_model'):
     elif model_type == 'Radius Neighbors':
         model = RadiusNeighborsModel()
     else:
-        st.warning("Please select a valid model type.")
+        st.error("Please select a valid model type.")
 
     # Store the model in session state to persist through reruns
     st.session_state.model = model
     st.success(f"Model initialized: {model.__class__.__name__}")
 
 
-# Step 4: Metric Selection
-st.write("## Select Metrics")
-if 'available_metrics' not in st.session_state:
-    st.session_state.features = None
-if task_type == 'classification':
-    st.session_state.available_metrics = ['Accuracy', 'Average Precision', 'Log Loss']
-else:
-    st.session_state.available_metrics = ['Mean Squared Error',
-                         'R squared',
-                         'Mean Absolute Error']
-selected_metrics = st.multiselect(
-    'Choose Metrics to Evaluate',
-    options=st.session_state.available_metrics,
-    default=st.session_state.available_metrics[0]
-)
-
-
-# Step 5: Dataset Split with Slider
+# Step 4: Dataset Split with Slider
 st.subheader("Data Split Configuration")
 split_ratio = st.slider("Set Train/Test Split Ratio",
                         min_value=0.1, max_value=0.9, value=0.8, step=0.05)
 st.write(f"Training Data: {split_ratio * 100}%, "
          f"Testing Data: {(1 - split_ratio) * 100}%")
 
-
-# Step 6: Prepare and split the data
+# Step 4: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
-    # Convert metric names to the instnces of each metric
     available_metrics = []
     for metric in st.session_state.available_metrics:
         available_metrics.append(get_metric(metric))
 
     st.session_state.pipeline = Pipeline(
-        metrics=available_metrics,
         metrics=available_metrics,
         dataset=selected_dataset,
         model=st.session_state.model,
@@ -249,6 +179,23 @@ if st.button('Prepare and Split Data', key='prepare_split'):
     # Apply the split based on the specified ratio
     st.session_state.pipeline._split_data()
     st.success("Data has been prepared and split successfully.")
+
+
+# Step 5: Metric Selection
+st.write("## Select Metrics")
+if 'available_metrics' not in st.session_state:
+    st.session_state.features = None
+if task_type == 'classification':
+    st.session_state.available_metrics = ['Accuracy', 'Average Precision', 'Log Loss']
+else:
+    st.session_state.available_metrics = ['Mean Squared Error',
+                         'R Squared',
+                         'Mean Absolute Error']
+selected_metrics = st.multiselect(
+    'Choose Metrics to Evaluate',
+    options=st.session_state.available_metrics,
+    default=st.session_state.available_metrics[0]
+)
 
 
 # Step 6: Pipeline Summary
@@ -308,11 +255,27 @@ pipeline_version = st.text_input("Enter Pipeline Version", "1.0")
 
 if st.button('Save Pipeline', key='save_pipeline'):
     if pipeline_name and pipeline_version:
+        serialized_pipeline = pickle.dumps(st.session_state.pipeline)
+        
+        # Get the input and target features for the metadata
+        input_features = [f.name for f in st.session_state.input_features] if hasattr(st.session_state, 'input_features') else []
+        target_feature = st.session_state.target_feature.name if hasattr(st.session_state, 'target_feature') else ''
+        
+        # Get the available metrics for the metadata
+        available_metrics = []
+        for metric in st.session_state.available_metrics:
+            available_metrics.append(get_metric(metric))
+        
         artifact = Artifact(
             name=pipeline_name,
             version=pipeline_version,
-            data=st.session_state.pipeline,
+            data=serialized_pipeline,
             type='pipeline',
+            metadata={
+            "input_features": input_features,
+            "target_feature": target_feature,
+            "metrics": available_metrics
+            },
             asset_path=f"pipelines/{pipeline_name}_v{pipeline_version}")
         automl.registry.register(artifact)
         st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' saved successfully!")
@@ -320,4 +283,3 @@ if st.button('Save Pipeline', key='save_pipeline'):
         st.error("Please provide both a name and a version for the pipeline.")
 else:
     st.warning("Please train the model before saving the Pipeline.")
-

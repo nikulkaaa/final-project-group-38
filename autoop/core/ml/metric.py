@@ -24,7 +24,7 @@ def get_metric(name: str) -> "Metric":
         "Average Precision": AveragePrecision,
         "Log Loss": LogLoss,
         "Mean Squared Error": MeanSquaredError,
-        "R squared": RSquared,
+        "R Squared": RSquared,
         "Mean Absolute Error": MeanAbsoluteError
     }
     if name in metric_classes:
