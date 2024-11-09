@@ -29,7 +29,12 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
     for column in df.columns:
         # Determine the type of each column based on its dtype
         if pd.api.types.is_numeric_dtype(df[column]):
-            feature_type = 'numerical'
+            unique_values = df[column].dropna().unique()
+            # Check if the feature is binary
+            if set(unique_values).issubset({0, 1}):
+                feature_type = 'categorical'
+            else:
+                feature_type = 'numerical'
         elif pd.api.types.is_categorical_dtype(df[column]) or df[
                 column].dtype == object:
             feature_type = 'categorical'

@@ -3,13 +3,13 @@ from typing import Any
 import numpy as np
 
 METRICS = [
-    "accuracy",
-    "average_precision",
-    "log_loss",
-    "mean_squared_error",
-    "r_squared",
-    "mean_absolute_error"
-]   # add the names (in strings) of the metrics you implement
+    "Accuracy",
+    "Average Precision",
+    "Log Loss",
+    "Mean Squared Error",
+    "R Squared",
+    "Mean Absolute Error"
+]   
 
 
 def get_metric(name: str) -> "Metric":
@@ -20,12 +20,12 @@ def get_metric(name: str) -> "Metric":
     """
 
     metric_classes = {
-        "accuracy": Accuracy,
-        "average_precision": AveragePrecision,
-        "log_loss": LogLoss,
-        "mean_squared_error": MeanSquaredError,
-        "r_squared": RSquared,
-        "mean_absolute_error": MeanAbsoluteError
+        "Accuracy": Accuracy,
+        "Average Precision": AveragePrecision,
+        "Log Loss": LogLoss,
+        "Mean Squared Error": MeanSquaredError,
+        "R Squared": RSquared,
+        "Mean Absolute Error": MeanAbsoluteError
     }
     if name in metric_classes:
         return metric_classes[name]()
@@ -52,7 +52,15 @@ class Metric(ABC):
     def evaluate(self, predictions: np.ndarray,
                             ground_truth: np.ndarray) -> float:
         """Alias for calling the metric as a function."""
-        return self.__call__(predictions, ground_truth)
+        """if not isinstance(ground_truth, np.ndarray):
+            raise ValueError("y_true must be a numpy array")
+        if not isinstance(predictions, np.ndarray):
+            raise ValueError("y_pred must be a numpy array")
+        ground_truth, predictions = ground_truth.squeeze(), predictions.squeeze()
+        if ground_truth.shape != predictions.shape:
+            print(ground_truth.shape, predictions.shape, ground_truth, predictionsd)
+            raise ValueError("y_true and y_pred must have the same size")"""
+        return self.__call__(ground_truth, predictions)
 
 # Metrics for Classification
 

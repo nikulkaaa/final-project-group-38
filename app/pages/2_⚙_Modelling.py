@@ -11,6 +11,7 @@ from autoop.core.ml.model.model import MultipleLinearRegression
 from autoop.core.ml.model.model import RadiusNeighborsModel
 from autoop.core.ml.model.model import LassoModel
 from autoop.core.ml.pipeline import Pipeline
+from autoop.core.ml.metric import get_metric
 from io import BytesIO
 
 
@@ -61,42 +62,60 @@ task_type = None
 
 # Step 2: Feature Detection and Selection
 st.write("## Feature Detection")
+
+# Ensure session state attributes are initialized
+if 'features' not in st.session_state or st.session_state.features is None:
+    st.session_state.features = []
+if 'feature_names' not in st.session_state or st.session_state.features is None:
+    st.session_state.feature_names = []
+
+# Initialize session state attributes if not set by the button
+if 'input_features' not in st.session_state:
+    st.session_state.input_features = []
+if 'target_feature' not in st.session_state:
+    st.session_state.target_feature = None
+if 'input_features_names' not in st.session_state:
+    st.session_state.input_features_names = []
+if 'target_feature_name' not in st.session_state:
+    st.session_state.target_feature_name = None
+
+# Detect features when the button is pressed
 if st.button('Detect Features', key='detect_features'):
-    features = detect_feature_types(data_bytes)
-    feature_names = [f.name for f in features]
+    st.session_state.features = detect_feature_types(data_bytes)
+    st.session_state.feature_names = [f.name for f in st.session_state.features]
 
-    # Initialize session state attributes if they don't exist
-    if 'input_features' not in st.session_state:
-        st.session_state.input_features = features[:-1]
-    if 'target_feature' not in st.session_state:
-        st.session_state.target_feature = features[-1]
-    if 'input_features_names' not in st.session_state:
-        st.session_state.input_features_names = feature_names[:-1]
-    if 'target_feature_name' not in st.session_state:
-        st.session_state.target_feature_name = feature_names[-1]
+    # Initialize session state attributes based on detected features
+    st.session_state.input_features = st.session_state.features[:-1]
+    st.session_state.target_feature = st.session_state.features[-1]
 
-    # Allow user to select input and target features
-    st.session_state.input_features_names = st.multiselect(
-        'Select Input Features',
-        options=feature_names,
-        default=st.session_state.input_features_names
-    )
-    st.session_state.target_feature_name = st.selectbox(
-        'Select Target Feature',
-        options=feature_names,
-        index=feature_names.index(st.session_state.target_feature_name)
-    )
+    st.session_state.input_features_names = st.session_state.feature_names[:-1]
+    st.session_state.target_feature_name = st.session_state.feature_names[-1]
 
-    # Update input and target features based on selection
-    st.session_state.input_features = (
-        [f for f in features
-         if f.name in st.session_state.input_features_names]
-    )
-    st.session_state.target_feature = next(
-        (f for f in features
-         if f.name == st.session_state.target_feature_name),
-        None)
+# Allow user to select input and target features
+st.session_state.input_features_names = st.multiselect(
+    'Select Input Features',
+    options=st.session_state.feature_names,
+    default=st.session_state.input_features_names
+)
+st.session_state.target_feature_name = st.selectbox(
+    'Select Target Feature',
+    options=st.session_state.feature_names,
+    index=st.session_state.feature_names.index(st.session_state.target_feature_name) if st.session_state.target_feature_name else 0
+)
 
+# Update input and target features based on selection
+st.session_state.input_features = [
+    f for f in st.session_state.features
+    if f.name in st.session_state.input_features_names
+]
+st.session_state.target_feature = next(
+    (f for f in st.session_state.features
+     if f.name == st.session_state.target_feature_name),
+    None
+)
+
+# Detect task type based on selected target feature
+if st.session_state.target_feature_name:
     target_feature_data = data[st.session_state.target_feature_name]
     if pd.api.types.is_numeric_dtype(target_feature_data):
         task_type = (
@@ -151,8 +170,12 @@ st.write(f"Training Data: {split_ratio * 100}%, "
 
 # Step 4: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
+    available_metrics = []
+    for metric in st.session_state.available_metrics:
+        available_metrics.append(get_metric(metric))
+
     st.session_state.pipeline = Pipeline(
-        metrics=[],
+        metrics=available_metrics,
         dataset=selected_dataset,
         model=st.session_state.model,
         input_features=st.session_state.input_features,
@@ -169,29 +192,87 @@ if st.button('Prepare and Split Data', key='prepare_split'):
 
 # Step 5: Metric Selection
 st.write("## Select Metrics")
+if 'available_metrics' not in st.session_state:
+    st.session_state.features = None
 if task_type == 'classification':
-    available_metrics = ['Accuracy', 'Average Precision', 'Log Laws']
+    st.session_state.available_metrics = ['Accuracy', 'Average Precision', 'Log Loss']
 else:
-    available_metrics = ['Mean Squared Error',
-                         'R squared',
+    st.session_state.available_metrics = ['Mean Squared Error',
+                         'R Squared',
                          'Mean Absolute Error']
 selected_metrics = st.multiselect(
     'Choose Metrics to Evaluate',
-    options=available_metrics,
-    default=available_metrics[0]
+    options=st.session_state.available_metrics,
+    default=st.session_state.available_metrics[0]
 )
 
 
-# Step 6: Pipeline Summary and Execution
-st.write("## Pipeline Summary")
-if st.button('Train Model', key='train_model_pipeline'):
-    results = st.session_state.model.fit(
-        st.session_state.pipeline.train_X,
-        st.session_state.pipeline.train_y
-    )
-    st.success("Training completed")
-    st.write('### Results: ')
-    st.write(results)
+# Step 6: Pipeline Summary
+# Check if the pipeline has been created
+if 'pipeline' in st.session_state:
+    pipeline = st.session_state.pipeline
 
-# Observations: When you call _split data in pipeline: train_X
-# Ground truth: train_Y
+    # Displaying model type
+    st.write("### Model Configuration:")
+    st.write(f"**Model Type:** {pipeline.model.__class__.__name__}")
+
+    # Displaying input features
+    input_feature_names = [feature.name for feature in st.session_state.input_features]
+    st.write(f"**Input Features:** {', '.join(input_feature_names)}")
+
+    # Displaying target feature
+    st.write(f"**Target Feature:** {st.session_state.target_feature}")
+
+    # Displaying split ratio
+    st.write(f"**Train/Test Split Ratio:** {pipeline._split:.2f}")
+
+    # Displaying selected metrics
+    if selected_metrics:
+        st.write(f"**Selected Metrics:** {', '.join(selected_metrics)}")
+    else:
+        st.write("**Selected Metrics:** None")
+
+    # Add button to execute the model training
+    if st.button('Train Model', key='train_model_pipeline'):
+        results = st.session_state.pipeline.execute()
+        
+        st.success("Training completed")
+        st.write('### Training Metrics:')
+        st.write('**Train Metrics:**')
+        for metric, result in results.get('train_metrics'):
+            st.write(f"{metric.__class__.__name__}: {result:.5f}")
+
+        st.write('**Test Metrics:**')
+        for metric, result in results['test_metrics']:
+            st.write(f"{metric.__class__.__name__}: {result:.5f}")
+
+        st.write('### Predictions:')
+        st.write('**Train Predictions:**')
+        st.write(results['train_predictions'])
+        
+        st.write('**Test Predictions:**')
+        st.write(results['test_predictions'])
+
+else:
+    st.warning("Please prepare and split the data before training the model.")
+
+
+# Step 8: Save Pipeline as an Artifact
+st.write("## Save Pipeline")
+pipeline_name = st.text_input("Enter Pipeline Name", "MyPipeline")
+pipeline_version = st.text_input("Enter Pipeline Version", "1.0")
+
+if st.button('Save Pipeline', key='save_pipeline'):
+    if pipeline_name and pipeline_version:
+        artifact = Artifact(
+            name=pipeline_name,
+            version=pipeline_version,
+            data=st.session_state.pipeline,
+            type='pipeline',
+            asset_path=f"pipelines/{pipeline_name}_v{pipeline_version}")
+        automl.registry.register(artifact)
+        st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' saved successfully!")
+    else:
+        st.error("Please provide both a name and a version for the pipeline.")
+else:
+    st.warning("Please train the model before saving the Pipeline.")

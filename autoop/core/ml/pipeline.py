@@ -121,9 +121,9 @@ Pipeline(
         return self._train_y
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
-        result = np.concatenate(vectors, axis=1)
-        if result.ndim == 1:
-            result = result.reshape(-1, 1)  # Make sure it's 2D
+        # Convert each vector to a 2D array if it is 1D
+        reshaped_vectors = [vector.reshape(-1, 1) if vector.ndim == 1 else vector for vector in vectors]
+        result = np.concatenate(reshaped_vectors, axis=1)
         return result
 
     def _train(self) -> None:
