@@ -151,6 +151,26 @@ if st.button('Choose Model', key='choose_model'):
     st.session_state.model = model
     st.success(f"Model initialized: {model.__class__.__name__}")
 
+# Step 5: Metric Selection
+st.write("## Select Metrics")
+if 'available_metrics' not in st.session_state:
+    st.session_state.features = None
+if task_type == 'classification':
+    st.session_state.available_metrics = ['Accuracy', 'Average Precision', 'Log Loss']
+else:
+    st.session_state.available_metrics = ['Mean Squared Error',
+                         'R Squared',
+                         'Mean Absolute Error']
+selected_metrics_names = st.multiselect(
+    'Choose Metrics to Evaluate',
+    options=st.session_state.available_metrics,
+    default=st.session_state.available_metrics[0]
+)
+
+# Convert the selected metric names into metrics
+selected_metrics = []
+for metric in selected_metrics_names:
+    selected_metrics.append(get_metric(metric))
 
 # Step 4: Dataset Split with Slider
 st.subheader("Data Split Configuration")
@@ -161,12 +181,9 @@ st.write(f"Training Data: {split_ratio * 100}%, "
 
 # Step 4: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
-    available_metrics = []
-    for metric in st.session_state.available_metrics:
-        available_metrics.append(get_metric(metric))
 
     st.session_state.pipeline = Pipeline(
-        metrics=available_metrics,
+        metrics=selected_metrics,
         dataset=selected_dataset,
         model=st.session_state.model,
         input_features=st.session_state.input_features,
@@ -179,24 +196,6 @@ if st.button('Prepare and Split Data', key='prepare_split'):
     # Apply the split based on the specified ratio
     st.session_state.pipeline._split_data()
     st.success("Data has been prepared and split successfully.")
-
-
-# Step 5: Metric Selection
-st.write("## Select Metrics")
-if 'available_metrics' not in st.session_state:
-    st.session_state.features = None
-if task_type == 'classification':
-    st.session_state.available_metrics = ['Accuracy', 'Average Precision', 'Log Loss']
-else:
-    st.session_state.available_metrics = ['Mean Squared Error',
-                         'R Squared',
-                         'Mean Absolute Error']
-selected_metrics = st.multiselect(
-    'Choose Metrics to Evaluate',
-    options=st.session_state.available_metrics,
-    default=st.session_state.available_metrics[0]
-)
-
 
 # Step 6: Pipeline Summary
 # Check if the pipeline has been created
@@ -218,8 +217,8 @@ if 'pipeline' in st.session_state:
     st.write(f"**Train/Test Split Ratio:** {pipeline._split:.2f}")
 
     # Displaying selected metrics
-    if selected_metrics:
-        st.write(f"**Selected Metrics:** {', '.join(selected_metrics)}")
+    if selected_metrics_names:
+        st.write(f"**Selected Metrics:** {', '.join(selected_metrics_names)}")
     else:
         st.write("**Selected Metrics:** None")
 
@@ -261,11 +260,6 @@ if st.button('Save Pipeline', key='save_pipeline'):
         input_features = [f.name for f in st.session_state.input_features] if hasattr(st.session_state, 'input_features') else []
         target_feature = st.session_state.target_feature.name if hasattr(st.session_state, 'target_feature') else ''
         
-        # Get the available metrics for the metadata
-        available_metrics = []
-        for metric in st.session_state.available_metrics:
-            available_metrics.append(get_metric(metric))
-        
         artifact = Artifact(
             name=pipeline_name,
             version=pipeline_version,
@@ -274,7 +268,7 @@ if st.button('Save Pipeline', key='save_pipeline'):
             metadata={
             "input_features": input_features,
             "target_feature": target_feature,
-            "metrics": available_metrics
+            "metrics": selected_metrics
             },
             asset_path=f"pipelines/{pipeline_name}_v{pipeline_version}")
         automl.registry.register(artifact)
