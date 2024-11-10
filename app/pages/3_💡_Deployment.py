@@ -55,6 +55,7 @@ else:
     st.write("No saved pipelines available.")
 
 
+
 # Step 2: Predictions
 st.title('Prediction Management')
 
@@ -71,18 +72,39 @@ if uploaded_file is not None:
     st.write("Preview of uploaded data:")
     st.dataframe(df.head())
 
-    # Convert the DataFrame into a Dataset object
-    dataset = Dataset.from_dataframe(df, name="new_data", asset_path="new_data.csv")
-    
-    # Store the uploaded data in session state to be used within the pipeline
-    st.session_state.actual_pipeline.dataset = dataset  # Save the dataset in session_state
-    
-    # Run predictions if the dataset is uploaded
-    if st.button('Run Predictions'):
-        try:
-            # Run predictions with the loaded pipeline (stored in session_state)
-            predictions = st.session_state.actual_pipeline.predict(dataset) 
-            st.write("### Predictions:")
-            st.dataframe(predictions)
-        except Exception as e:
-            st.error(f"An error occurred during prediction: {e}")
+    # Get the trained input feature names (excluding the target feature)
+    training_input_features = [feature.name for feature in st.session_state.actual_pipeline._input_features]
+    target_feature_name = st.session_state.actual_pipeline._target_feature.name
+    model_type = st.session_state.actual_pipeline.model.type
+
+    # Remove the target feature column from the uploaded columns (if it exists)
+    uploaded_columns = list(df.columns)
+    if target_feature_name in uploaded_columns:
+        uploaded_columns.remove(target_feature_name)  # Ignore the target feature column
+
+    # Check if the columns in the uploaded dataset match the trained input features
+    if set(training_input_features) != set(uploaded_columns):
+        st.error("Please upload a dataset with the same column headers as the one used for training. The following columns are missing or misaligned:")
+        missing_columns = set(training_input_features) - set(uploaded_columns)
+        extra_columns = set(uploaded_columns) - set(training_input_features)
+        
+        if missing_columns:
+            st.error(f"Missing columns: {', '.join(missing_columns)}")
+        if extra_columns:
+            st.error(f"Extra columns: {', '.join(extra_columns)}")
+    else:
+        # Convert the DataFrame into a Dataset object
+        dataset = Dataset.from_dataframe(df, name="new_data", asset_path="new_data.csv")
+        
+        # Store the uploaded data in session state to be used within the pipeline
+        st.session_state.actual_pipeline.dataset = dataset  # Save the dataset in session_state
+        
+        # Run predictions if the dataset is uploaded
+        if st.button('Run Predictions'):
+            try:
+                # Run predictions with the loaded pipeline (stored in session_state)
+                predictions = st.session_state.actual_pipeline.predict(dataset) 
+                st.write("### Predictions:")
+                st.dataframe(predictions)
+            except Exception as e:
+                st.error(f"An error occurred during prediction: {e}")
