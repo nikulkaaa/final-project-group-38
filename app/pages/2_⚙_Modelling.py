@@ -88,7 +88,9 @@ def select_dataset() -> None:
 
         # Load the dataset
         # Convert the bytes data to a file-like object
-        st.session_state.data_bytes = (st.session_state.selected_dataset.read())
+        st.session_state.data_bytes = (
+            st.session_state.selected_dataset.read()
+        )
         data_file = BytesIO(st.session_state.data_bytes)
 
         # Use pd.read_csv on the file-like object
@@ -368,7 +370,7 @@ def save_pipeline() -> None:
                 input_features = ([f.name
                                   for f in st.session_state.input_features]
                                   if hasattr(st.session_state,
-                                            'input_features') else [])
+                                             'input_features') else [])
                 target_feature = (st.session_state.target_feature.name
                                   if hasattr(st.session_state,
                                              'target_feature') else '')

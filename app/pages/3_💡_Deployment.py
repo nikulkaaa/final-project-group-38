@@ -50,7 +50,7 @@ def load_pipeline() -> None:
                     st.write(f"**Name:** {artifact.name}")
                     st.write(f"**Model Type:** {model_type}")
                     st.write(f"**Model Used:** {model_class_name}")
-                    st.write("**Input Features:**" 
+                    st.write("**Input Features:**"
                              f"{[f for f in input_features]}")
                     st.write(f"**Target Feature:** {target_feature}")
                     st.write("### Metrics and Values:")
