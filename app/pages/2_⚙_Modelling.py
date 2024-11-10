@@ -176,8 +176,7 @@ def select_features() -> None:
     ]
     st.session_state.target_feature = next(
         (f for f in st.session_state.features
-         if f.name == st.session_state.target_feature_name),
-         None
+         if f.name == st.session_state.target_feature_name), None
     )
 
 
@@ -307,7 +306,7 @@ def generate_pipeline_summary() -> None:
 
         # Displaying input features
         input_feature_names = [
-            feature.name for feature 
+            feature.name for feature
             in st.session_state.input_features
         ]
         st.write(f"**Input Features:** {', '.join(input_feature_names)}")
@@ -366,17 +365,17 @@ def save_pipeline() -> None:
                 serialized_pipeline = pickle.dumps(st.session_state.pipeline)
 
                 # Get the input and target features for the metadata
-                input_features = ([f.name 
-                                   for f in st.session_state.input_features] 
-                                   if hasattr(st.session_state,
-                                               'input_features') else [])
+                input_features = ([f.name
+                                  for f in st.session_state.input_features]
+                                  if hasattr(st.session_state,
+                                            'input_features') else [])
                 target_feature = (st.session_state.target_feature.name
                                   if hasattr(st.session_state,
                                              'target_feature') else '')
-        
+
                 # Get the metrics used for evaluation
                 metric_values = {}
-                for metric, result in(
+                for metric, result in (
                     st.session_state.results.get('train_metrics')
                 ):
                     metric_name = metric.__class__.__name__
