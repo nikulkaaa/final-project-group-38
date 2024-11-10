@@ -27,7 +27,7 @@ class TestFeatures(unittest.TestCase):
         )
         self.X = iris.data
         self.y = iris.target
-        features = detect_feature_types(dataset)
+        features = detect_feature_types(dataset.data)
         self.assertIsInstance(features, list)
         self.assertEqual(len(features), 4)
         for feature in features:
@@ -46,7 +46,7 @@ class TestFeatures(unittest.TestCase):
             asset_path="adult.csv",
             data=df,
         )
-        features = detect_feature_types(dataset)
+        features = detect_feature_types(dataset.data)
         self.assertIsInstance(features, list)
         self.assertEqual(len(features), 14)
         numerical_columns = [

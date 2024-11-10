@@ -45,7 +45,7 @@ def preprocess_features(
                 encoder = OneHotEncoder(sparse_output=False)
                 data = encoder.fit_transform(
                     raw[feature.name].values.reshape(-1, 1)
-                ).toarray()
+                )
                 artifact = {"type": "OneHotEncoder", "encoder": encoder}
                 results.append((feature.name, data, artifact))
 
