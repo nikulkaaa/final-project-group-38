@@ -1,7 +1,6 @@
 """Constructor file for public package."""
 
 from autoop.core.ml.model.model import Model
-from autoop.core.ml.model.regression import MultipleLinearRegression
 
 REGRESSION_MODELS = [
 ]   # add your models as str here

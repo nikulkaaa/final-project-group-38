@@ -6,7 +6,7 @@ from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 from autoop.functional.feature import detect_feature_types
-from autoop.core.ml.model.regression import MultipleLinearRegression
+from autoop.core.ml.model.model import MultipleLinearRegression
 from autoop.core.ml.metric import MeanSquaredError
 
 class TestPipeline(unittest.TestCase):

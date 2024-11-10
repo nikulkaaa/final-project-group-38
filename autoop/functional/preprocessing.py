@@ -11,7 +11,7 @@ def preprocess_features(
         features: List[Feature],
         dataset: Dataset,
         one_hot_encode_target: bool = False
-        ) -> List[Tuple[str, np.ndarray, dict]]:
+    ) -> List[Tuple[str, np.ndarray, dict]]:
     """Preprocess features.
 
     Args:
@@ -49,7 +49,9 @@ def preprocess_features(
                 artifact = {"type": "OneHotEncoder", "encoder": encoder}
                 results.append((feature.name, data, artifact))
 
-        elif feature.type == "numerical" or (feature.is_target and not one_hot_encode_target):
+        elif feature.type == "numerical" or (
+            feature.is_target and not one_hot_encode_target
+        ):
             # Process target as numerical
             data = raw[feature.name].values.reshape(-1, 1)
             artifact = {"type": "None", "scaler": None}

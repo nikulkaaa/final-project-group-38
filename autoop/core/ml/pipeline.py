@@ -87,29 +87,39 @@ Pipeline(
         # Pass a flag to indicate if the target should be one-hot encoded
         is_classification = (self._target_feature.type == 'categorical')
         (target_feature_name, target_data, artifact) = preprocess_features(
-            [self._target_feature], self._dataset, one_hot_encode_target=is_classification)[0]
+            [self._target_feature],
+            self._dataset,
+            one_hot_encode_target=is_classification)[0]
 
         self._register_artifact(target_feature_name, artifact)
 
-        # Preprocess input features without additional flags for one-hot encoding
-        input_results = preprocess_features(self._input_features, self._dataset)
+        # Preprocess input features without one-hot encoding
+        input_results = preprocess_features(self._input_features,
+                                            self._dataset)
         for (feature_name, data, artifact) in input_results:
             self._register_artifact(feature_name, artifact)
 
         # Assign input and output vectors
         self._output_vector = target_data
-        self._input_vectors = [data for (feature_name, data, artifact) in input_results]
+        self._input_vectors = [
+            data for (feature_name, data, artifact) in input_results
+        ]
 
         # Ensure input vectors have matching number of rows
         if len(self._input_vectors) > 0:
             num_rows = self._input_vectors[0].shape[0]
             for vector in self._input_vectors:
                 if vector.shape[0] != num_rows:
-                    raise ValueError("Input vectors have different number of rows.")
-        
+                    raise ValueError(
+                        "Input vectors have different number of rows."
+                    )
+
         # Log the shape for debugging
         if self._output_vector.shape[1] > 1 and not is_classification:
-            raise ValueError(f"Unexpected output vector shape {self._output_vector.shape} for regression.")
+            raise ValueError(
+                "Unexpected output vector shape "
+                f"{self._output_vector.shape} for regression."
+            )
 
     def _split_data(self) -> None:
         # Compact the input vectors into a single 2D array

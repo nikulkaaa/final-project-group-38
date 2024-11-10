@@ -20,8 +20,10 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
     """
     # Decode the byte data into a DataFrame
     if isinstance(dataset, bytes):
-        data_string = io.StringIO(dataset.decode('utf-8'))  # Bytes to string
-        df = pd.read_csv(data_string)  # Read the string as a DataFrame
+        # Bytes to string
+        data_string = io.StringIO(dataset.decode('utf-8'))
+        # Read the string as a DataFrame
+        df = pd.read_csv(data_string)
     else:
         raise ValueError("Dataset data is not in the expected bytes format.")
 

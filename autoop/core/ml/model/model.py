@@ -1,7 +1,6 @@
 
 from abc import abstractmethod, ABC
-from autoop.core.ml.artifact import Artifact
-from autoop.core.ml.metric import Metric, get_metric
+from autoop.core.ml.metric import Metric
 from sklearn.linear_model import Lasso
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
@@ -10,8 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from copy import deepcopy
-from collections import Counter
-from pydantic import BaseModel, field_validator, PrivateAttr, Field
+from pydantic import BaseModel, PrivateAttr, Field
 
 
 class Model(BaseModel, ABC):
@@ -41,6 +39,7 @@ class Model(BaseModel, ABC):
 
 # Models for Classification: knn, DecisionTreeClassifier, MLP classifier
 
+
 class KNearestNeighbors(Model):
     """Model for the K Nearest Neighbours classification model"""
     _model: KNeighborsClassifier = PrivateAttr()
@@ -64,10 +63,11 @@ class KNearestNeighbors(Model):
         self.is_trained = True
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """Make predictions using the trained K Nearest Neighbours Classifier."""
+        """Make predictions using the trained KNearestNeighboursClassifier."""
         if not self.is_trained:
             raise ValueError("Model must be trained before prediction.")
         return self._model.predict(X.T)
+
 
 class DecisionTreeClassifierModel(Model):
     """Model for the decision tree classification model"""
@@ -164,6 +164,7 @@ class MultipleLinearRegression(Model):
         """
         # Make predictions using the Lasso model
         return self._model.predict(observations.T)
+
 
 class LassoModel(Model):
     """

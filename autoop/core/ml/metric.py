@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 import numpy as np
 
 METRICS = [
@@ -9,7 +8,7 @@ METRICS = [
     "Mean Squared Error",
     "R Squared",
     "Mean Absolute Error"
-]   
+]
 
 
 def get_metric(name: str) -> "Metric":
@@ -57,6 +56,7 @@ class Metric(ABC):
         return self.__call__(predictions, ground_truth)'''
 
 # Metrics for Classification
+
 
 class Accuracy(Metric):
     """Class to measure the accuracy of predictions made by the model."""
