@@ -40,7 +40,7 @@ selected_dataset = next(ds for ds in datasets if ds.name == dataset_name)
 
 # Load the dataset
 # Convert the bytes data to a file-like object
-data_bytes = selected_dataset.read()  # Assuming this returns bytes
+data_bytes = selected_dataset.read() 
 data_file = BytesIO(data_bytes)
 
 # Use pd.read_csv on the file-like object
@@ -126,30 +126,32 @@ if task_type == 'classification':
 else:
     model_types = ['MLR', 'Lasso', 'Radius Neighbors']
 
-
-model_type = st.selectbox('Choose Model', model_types)
-
 # Step 4: Model Selection for initialization based on task type
+model_type = st.selectbox('Choose Model', model_types)
 if st.button('Choose Model', key='choose_model'):
-    # Create the model based on the selected model type
-    if model_type == 'Decision Tree':
-        model = DecisionTreeClassifierModel()
-    elif model_type == 'MLP':
-        model = MLPClassifierModel()
-    elif model_type == 'KNN':
-        model = KNearestNeighbors()
-    elif model_type == 'MLR':
-        model = MultipleLinearRegression()
-    elif model_type == 'Lasso':
-        model = LassoModel()
-    elif model_type == 'Radius Neighbors':
-        model = RadiusNeighborsModel()
+    # Check whether features were created
+    if st.session_state.features == []:
+        st.warning("Please detect features before initializing model.")
     else:
-        st.error("Please select a valid model type.")
+        # Create the model based on the selected model type
+        if model_type == 'Decision Tree':
+            model = DecisionTreeClassifierModel()
+        elif model_type == 'MLP':
+            model = MLPClassifierModel()
+        elif model_type == 'KNN':
+            model = KNearestNeighbors()
+        elif model_type == 'MLR':
+            model = MultipleLinearRegression()
+        elif model_type == 'Lasso':
+            model = LassoModel()
+        elif model_type == 'Radius Neighbors':
+            model = RadiusNeighborsModel()
+        else:
+            st.error("Please select a valid model type.")
 
-    # Store the model in session state to persist through reruns
-    st.session_state.model = model
-    st.success(f"Model initialized: {model.__class__.__name__}")
+        # Store the model in session state to persist through reruns
+        st.session_state.model = model
+        st.success(f"Model initialized: {model.__class__.__name__}")
 
 # Step 5: Metric Selection
 st.write("## Select Metrics")
@@ -181,21 +183,23 @@ st.write(f"Training Data: {split_ratio * 100}%, "
 
 # Step 7: Prepare and split the data
 if st.button('Prepare and Split Data', key='prepare_split'):
+    if 'model' in st.session_state:
+        st.session_state.pipeline = Pipeline(
+            metrics=selected_metrics,
+            dataset=selected_dataset,
+            model=st.session_state.model,
+            input_features=st.session_state.input_features,
+            target_feature=st.session_state.target_feature,
+            split=split_ratio
+        )
 
-    st.session_state.pipeline = Pipeline(
-        metrics=selected_metrics,
-        dataset=selected_dataset,
-        model=st.session_state.model,
-        input_features=st.session_state.input_features,
-        target_feature=st.session_state.target_feature,
-        split=split_ratio
-    )
-
-    # Preprocess the features
-    st.session_state.pipeline._preprocess_features()
-    # Apply the split based on the specified ratio
-    st.session_state.pipeline._split_data()
-    st.success("Data has been prepared and split successfully.")
+        # Preprocess the features
+        st.session_state.pipeline._preprocess_features()
+        # Apply the split based on the specified ratio
+        st.session_state.pipeline._split_data()
+        st.success("Data has been prepared and split successfully.")
+    else:
+        st.warning("Please select model before splitting the data.")
 
 
 # Step 8: Pipeline Summary
@@ -244,9 +248,6 @@ if 'pipeline' in st.session_state:
         st.write('**Test Predictions:**')
         st.write(st.session_state.results['test_predictions'])
 
-else:
-    st.warning("Please prepare and split the data before training the model.")
-
 
 # Step 8: Save Pipeline as an Artifact
 st.write("## Save Pipeline")
@@ -254,34 +255,35 @@ pipeline_name = st.text_input("Enter Pipeline Name", "MyPipeline")
 pipeline_version = st.text_input("Enter Pipeline Version", "1.0")
 
 if st.button('Save Pipeline', key='save_pipeline'):
-    if pipeline_name and pipeline_version:
-        serialized_pipeline = pickle.dumps(st.session_state.pipeline)
-        
-        # Get the input and target features for the metadata
-        input_features = [f.name for f in st.session_state.input_features] if hasattr(st.session_state, 'input_features') else []
-        target_feature = st.session_state.target_feature.name if hasattr(st.session_state, 'target_feature') else ''
-        
-        # Get the metrics used for evaluation
-        metric_values = {}
-        for metric, result in st.session_state.results.get('train_metrics'):
-            metric_name = metric.__class__.__name__
-            metric_values[metric_name] = result
-        
-        # Create an arifact with that data
-        artifact = Artifact(
-            name=pipeline_name,
-            version=pipeline_version,
-            data=serialized_pipeline,
-            type='pipeline',
-            metadata={
-            "input_features": input_features,
-            "target_feature": target_feature,
-            "metric_values": metric_values,
-            },
-            asset_path=f"pipelines/{pipeline_name}_v{pipeline_version}")
-        automl.registry.register(artifact)
-        st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' saved successfully!")
+    if 'pipeline' not in st.session_state:
+        st.warning("Please train the model before saving the Pipeline.")
     else:
-        st.error("Please provide both a name and a version for the pipeline.")
-else:
-    st.warning("Please train the model before saving the Pipeline.")
+        if pipeline_name and pipeline_version:
+            serialized_pipeline = pickle.dumps(st.session_state.pipeline)
+            
+            # Get the input and target features for the metadata
+            input_features = [f.name for f in st.session_state.input_features] if hasattr(st.session_state, 'input_features') else []
+            target_feature = st.session_state.target_feature.name if hasattr(st.session_state, 'target_feature') else ''
+            
+            # Get the metrics used for evaluation
+            metric_values = {}
+            for metric, result in st.session_state.results.get('train_metrics'):
+                metric_name = metric.__class__.__name__
+                metric_values[metric_name] = result
+            
+            # Create an arifact with that data
+            artifact = Artifact(
+                name=pipeline_name,
+                version=pipeline_version,
+                data=serialized_pipeline,
+                type='pipeline',
+                metadata={
+                "input_features": input_features,
+                "target_feature": target_feature,
+                "metric_values": metric_values,
+                },
+                asset_path=f"pipelines/{pipeline_name}_v{pipeline_version}")
+            automl.registry.register(artifact)
+            st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' saved successfully!")
+        else:
+            st.error("Please provide both a name and a version for the pipeline.")
