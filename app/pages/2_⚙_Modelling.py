@@ -136,8 +136,8 @@ def detect_features() -> None:
 
     # Detect features when the button is pressed
     if st.button('Detect Features', key='detect_features'):
-        if ("datasets" in st.session_state and
-             "data_bytes" in st.session_state):
+        if ("datasets" in st.session_state and ("data_bytes"
+                                                in st.session_state)):
             st.session_state.features = detect_feature_types(
                 st.session_state.data_bytes
             )
