@@ -83,8 +83,7 @@ def select_dataset() -> None:
         )
         st.session_state.selected_dataset = next(
             (ds for ds in st.session_state.datasets
-             if ds.name == dataset_name),
-             None
+             if ds.name == dataset_name), None
         )
         if st.session_state.selected_dataset is not None:
             # Load the dataset
@@ -137,8 +136,8 @@ def detect_features() -> None:
 
     # Detect features when the button is pressed
     if st.button('Detect Features', key='detect_features'):
-        if ("datasets" in st.session_state
-            and "data_bytes" in st.session_state):
+        if ("datasets" in st.session_state and
+             "data_bytes" in st.session_state):
             st.session_state.features = detect_feature_types(
                 st.session_state.data_bytes
             )
