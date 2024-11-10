@@ -69,6 +69,5 @@ def main() -> None:
                 except Exception as e:
                     st.error(f"Error reading dataset: {e}")
 
-
 if __name__ == "__main__":
     main()

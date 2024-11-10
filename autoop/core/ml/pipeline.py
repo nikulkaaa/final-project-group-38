@@ -196,3 +196,26 @@ Pipeline(
             "train_predictions": self._train_predictions,
             "test_predictions": self._test_predictions,
         }
+    def predict(self, new_data: Dataset) -> Dict[str, Any]:
+        """Make predictions on the new data using the trained model.
+
+        Args:
+            new_data (pd.DataFrame): The new data for which to make predictions.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing the predictions.
+        """
+
+        # Step 1: Preprocess the new data using the same preprocessing logic
+        # We will preprocess the new data using the same input features and target feature that were used during training
+        is_classification = (self._target_feature.type == 'categorical')
+        preprocessed_data = preprocess_features(self._input_features, new_data, one_hot_encode_target=is_classification)
+
+        # Extract the processed feature data
+        processed_data = np.hstack([feature_data for _, feature_data, _ in preprocessed_data])
+
+        # Step 2: Use the trained model to make predictions
+        predictions = self._model.predict(processed_data.T)
+
+        # Step 3: Return the predictions
+        return predictions
