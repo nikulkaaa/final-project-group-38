@@ -181,7 +181,9 @@ def upload_and_predict() -> None:
     uploaded_file = st.file_uploader("Choose a CSV file for predictions",
                                      type='csv')
 
-    if uploaded_file is not None:
+    if uploaded_file is not None and (
+        "actual_pipeline" in st.session_state
+    ):
         df = pd.read_csv(uploaded_file)
         st.write("Preview of uploaded data:")
         st.dataframe(df.head())

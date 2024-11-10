@@ -82,20 +82,24 @@ def select_dataset() -> None:
             [ds.name for ds in st.session_state.datasets]
         )
         st.session_state.selected_dataset = next(
-            ds for ds in st.session_state.datasets
-            if ds.name == dataset_name
-        )
+            (ds for ds in st.session_state.datasets
+            if ds.name == dataset_name),
+            None
+            )
+        if st.session_state.selected_dataset is not None:
+            # Load the dataset
+            # Convert the bytes data to a file-like object
+            st.session_state.data_bytes = (
+                st.session_state.selected_dataset.read()
+            )
+            data_file = BytesIO(st.session_state.data_bytes)
 
-        # Load the dataset
-        # Convert the bytes data to a file-like object
-        st.session_state.data_bytes = (
-            st.session_state.selected_dataset.read()
-        )
-        data_file = BytesIO(st.session_state.data_bytes)
-
-        # Use pd.read_csv on the file-like object
-        st.session_state.data = pd.read_csv(data_file)
-        st.write("Data Preview:", st.session_state.data.head())
+            # Use pd.read_csv on the file-like object
+            st.session_state.data = pd.read_csv(data_file)
+            st.write("Data Preview:", st.session_state.data.head())
+        else:
+            st.warning("Please upload datasets before proceeding.")
+        
     else:
         st.warning("Please upload datasets before proceeding.")
 
@@ -133,7 +137,8 @@ def detect_features() -> None:
 
     # Detect features when the button is pressed
     if st.button('Detect Features', key='detect_features'):
-        if "datasets" in st.session_state:
+        if ("datasets" in st.session_state 
+            and "data_bytes" in st.session_state):
             st.session_state.features = detect_feature_types(
                 st.session_state.data_bytes
             )
@@ -360,7 +365,9 @@ def save_pipeline() -> None:
     pipeline_version = st.text_input("Enter Pipeline Version", "1.0")
 
     if st.button('Save Pipeline', key='save_pipeline'):
-        if 'pipeline' not in st.session_state:
+        if 'pipeline' not in st.session_state or(
+            "results" not in st.session_state
+        ):
             st.warning("Please train the model before saving the Pipeline.")
         else:
             if pipeline_name and pipeline_version:
