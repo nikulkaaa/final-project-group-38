@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
 from app.core.system import AutoMLSystem
-from io import BytesIO
-import pickle
 from autoop.core.ml.dataset import Dataset
-from typing import List
+import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+import numpy as np
 
 
 st.set_page_config(page_title="Deployment", page_icon="🚀")
@@ -15,7 +17,8 @@ st.title('Deployment Management')
 # Access the singleton AutoMLSystem instance
 automl = AutoMLSystem.get_instance()
 
-# Step 1: Getting existing artifacts of type pipeline
+
+# STEP 1: Getting existing artifacts of type pipeline
 artifacts = automl.registry.list(type="pipeline")
 pipelines = [artifact for artifact in artifacts if artifact.type == 'pipeline']
 
@@ -38,9 +41,25 @@ if pipelines:
                 target_feature = artifact.metadata.get("target_feature", "")
                 metrics = artifact.metadata.get("metric_values", {})
                 
+                # Get the model class name
+                model_class_name = st.session_state.actual_pipeline.model.__class__.__name__
+                
+                # Determine if the model is classification or regression
+                if model_class_name in ['MLPClassifierModel',
+                                        'KNearestNeighbors',
+                                        'DecisionTreeClassifierModel']:
+                    model_type = "classification"
+                elif model_class_name in ['MultipleLinearRegression', 
+                                        'RadiusNeighborsModel',
+                                        'LassoModel']:
+                    model_type = "regression"
+                else:
+                    model_type = "Unknown"
+                
                 st.write("### Pipeline Summary:")
                 st.write(f"**Name:** {artifact.name}")
-                st.write(f"**Model Type:** {st.session_state.actual_pipeline.model.__class__.__name__}")
+                st.write(f"**Model Type:** {model_type}")
+                st.write(f"**Model Used:** {model_class_name}")
                 st.write(f"**Input Features:** {[f for f in input_features]}")
                 st.write(f"**Target Feature:** {target_feature}")
                 st.write("### Metrics and Values:")
@@ -56,7 +75,42 @@ else:
 
 
 
-# Step 2: Predictions
+# STEP 3: Function to generate experiment reports
+def generate_experiment_report(predictions, df, model_type, target_feature_name):
+    """
+    Function to generate experiment reports with metrics and graphs after predictions.
+    """
+    if model_type == "classification":
+        # Plot Confusion Matrix for classification models
+        st.write("### Confusion Matrix:")
+        if target_feature_name in df.columns:
+            y_true = df[target_feature_name]
+            # Handle predictions as numpy.ndarray
+            y_pred = predictions if isinstance(predictions, np.ndarray) else predictions[:, 0]  # Adjust for ndarray format
+            cm = confusion_matrix(y_true, y_pred)
+            fig, ax = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+            ax.set_xlabel('Predicted')
+            ax.set_ylabel('True')
+            ax.set_title('Confusion Matrix')
+            st.pyplot(fig)
+    elif model_type == "regression":
+        # For regression models, show actual vs predicted graph
+        st.write("### Actual vs Predicted Values (Regression):")
+        if target_feature_name in df.columns:
+            y_true = df[target_feature_name]
+            # For regression, use predictions directly since it's a numpy ndarray
+            y_pred = predictions if isinstance(predictions, np.ndarray) else predictions[:, 0]  # Adjust for ndarray format
+            fig, ax = plt.subplots()
+            ax.scatter(y_true, y_pred)
+            ax.plot([y_true.min(), y_true.max()], [y_true.min(), y_true.max()], 'k--', lw=2)
+            ax.set_xlabel('Actual')
+            ax.set_ylabel('Predicted')
+            ax.set_title('Actual vs Predicted')
+            st.pyplot(fig)
+
+
+# STEP 2: Predictions
 st.title('Prediction Management')
 
 # Access the singleton AutoMLSystem instance
@@ -106,5 +160,10 @@ if uploaded_file is not None:
                 predictions = st.session_state.actual_pipeline.predict(dataset) 
                 st.write("### Predictions:")
                 st.dataframe(predictions)
+                
+                # Call the function to generate experiment reports (metrics and graphs)
+                generate_experiment_report(predictions, df, model_type, target_feature_name)
+
+                
             except Exception as e:
-                st.error(f"An error occurred during prediction: {e}")
+                st.error(f"{e}. Please make sure you are uploading a dataset of the same type (classification or regression) as the data you have traineed on.")
