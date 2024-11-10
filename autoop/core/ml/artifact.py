@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 import base64
-from typing import Optional, object, List
+from typing import Optional, Any, List
 import pandas as pd
 import uuid
 
