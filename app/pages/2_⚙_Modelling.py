@@ -35,17 +35,20 @@ automl = AutoMLSystem.get_instance()
 datasets = automl.registry.list(type="dataset")
 
 # Step 1: Select a Dataset
-dataset_name = st.selectbox('Select a Dataset', [ds.name for ds in datasets])
-selected_dataset = next(ds for ds in datasets if ds.name == dataset_name)
+if datasets:
+    dataset_name = st.selectbox('Select a Dataset', [ds.name for ds in datasets])
+    selected_dataset = next(ds for ds in datasets if ds.name == dataset_name)
 
-# Load the dataset
-# Convert the bytes data to a file-like object
-data_bytes = selected_dataset.read() 
-data_file = BytesIO(data_bytes)
+    # Load the dataset
+    # Convert the bytes data to a file-like object
+    data_bytes = selected_dataset.read() 
+    data_file = BytesIO(data_bytes)
 
-# Use pd.read_csv on the file-like object
-data = pd.read_csv(data_file)
-st.write("Data Preview:", data.head())
+    # Use pd.read_csv on the file-like object
+    data = pd.read_csv(data_file)
+    st.write("Data Preview:", data.head())
+else:
+    st.warning("Please upload datasets before proceeding.")
 
 # Initialize task_type to None
 task_type = None
@@ -72,15 +75,18 @@ if 'target_feature_name' not in st.session_state:
 
 # Detect features when the button is pressed
 if st.button('Detect Features', key='detect_features'):
-    st.session_state.features = detect_feature_types(data_bytes)
-    st.session_state.feature_names = [f.name for f in st.session_state.features]
+    if datasets:
+        st.session_state.features = detect_feature_types(data_bytes)
+        st.session_state.feature_names = [f.name for f in st.session_state.features]
 
-    # Initialize session state attributes based on detected features
-    st.session_state.input_features = st.session_state.features[:-1]
-    st.session_state.target_feature = st.session_state.features[-1]
+        # Initialize session state attributes based on detected features
+        st.session_state.input_features = st.session_state.features[:-1]
+        st.session_state.target_feature = st.session_state.features[-1]
 
-    st.session_state.input_features_names = st.session_state.feature_names[:-1]
-    st.session_state.target_feature_name = st.session_state.feature_names[-1]
+        st.session_state.input_features_names = st.session_state.feature_names[:-1]
+        st.session_state.target_feature_name = st.session_state.feature_names[-1]
+    else:
+        st.warning("Upload a dataset first !!")
 
 # Allow user to select input and target features
 st.session_state.input_features_names = st.multiselect(
