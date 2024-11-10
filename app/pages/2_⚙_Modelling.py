@@ -320,9 +320,9 @@ def generate_pipeline_summary() -> None:
 
         # Displaying selected metrics
         if st.session_state.selected_metrics_names:
-            st.write(f"**Selected Metrics:** {
-                ', '.join(st.session_state.selected_metrics_names)
-            }")
+            st.write(
+                "**Selected Metrics:** "
+                f"{', '.join(st.session_state.selected_metrics_names)}")
         else:
             st.write("**Selected Metrics:** None")
         train_model()

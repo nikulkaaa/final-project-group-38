@@ -196,7 +196,7 @@ Pipeline(
             "train_predictions": self._train_predictions,
             "test_predictions": self._test_predictions,
         }
-    
+
     def predict(self, new_data: Dataset) -> Dict[str, Any]:
         """Make predictions on the new data using the trained model.
 
