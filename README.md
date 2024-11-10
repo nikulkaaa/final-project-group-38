@@ -1,31 +1,29 @@
-# AutOOP your first AutoML library
-
 🎉🥳 Congratulations on making it to this final project! We are excited to see what you can do.
 
 ## Introduction
 
-The objective of this assignment is to create a Streamlit application that allows users to train models by uploading a CSV and choosing the target column. The assignment is designed to be completed within a month (`Deadline`, CHECK BRIGHTSPACE)
+The objective of this assignment is to create a Streamlit application that allows users to train models by uploading a CSV and choosing the target column. The assignment is designed to be completed within a month (Deadline, CHECK BRIGHTSPACE)
 The intention is to simulate a real-world scenario where you are given a set of requirements and a codebase to start from. Furthermore, you will gain a better understanding of how ML applications are organised in industry which leverages standard OOP patters.
 
 ## Problem Space
 
 The problem space is where you will be working. However, we have already implemented some of the features for you.
-We highly encourage you to go beyond the requirements and implement additional features that you think would be useful for the user to showcase your skills. **The world is your oyster.**
+We highly encourage you to go beyond the requirements and implement additional features that you think would be useful for the user to showcase your skills. *The world is your oyster.*
 
 ### 📝 General principles
 
 > "Simplicity is a great virtue but it requires hard work to achieve it and education to appreciate it. And to make matters worse: complexity sells better.”
 ― Edsger Wybe Dijkstra"
 
-1. `Modifiability`: The code should be easy to modify and extend. You should be able to add new features without having to rewrite the entire codebase or heavy refactoring.
-   *Important*: We prefer that you do not use libraries or frameworks for this reason. We want to see how you structure your code and how you solve problems. Furthermore, many of the tools available may not be customisable enough for our needs.
+1. Modifiability: The code should be easy to modify and extend. You should be able to add new features without having to rewrite the entire codebase or heavy refactoring.
+   Important: We prefer that you do not use libraries or frameworks for this reason. We want to see how you structure your code and how you solve problems. Furthermore, many of the tools available may not be customisable enough for our needs.
    Hence, if you want to include a library, please make sure to justify it.
 
-2. `Testability`: The code should be easy to test. You should be able to write unit tests for the code.
-3. `Readability`: The code should be easy to read. You should be able to understand what the code does without having to spend a lot of time on it.
-4. `Performance`: The code should be fast. You should be able to run the code on a low-end machine without any problems.
-5. `Intuitiveness`: The code should be easy to understand. You should be able to understand what the code does without having to spend a lot of time on it. But also the controls and interactions should be simple for the user.
-6. `Security`: The code should be secure. Isolate your secrets and keys from the codebase. Do not commit your secrets and keys to the repository. Avoid XSS and CSRF attacks. Enforce the principle of least privilege. Validate user input, etc.
+2. Testability: The code should be easy to test. You should be able to write unit tests for the code.
+3. Readability: The code should be easy to read. You should be able to understand what the code does without having to spend a lot of time on it.
+4. Performance: The code should be fast. You should be able to run the code on a low-end machine without any problems.
+5. Intuitiveness: The code should be easy to understand. You should be able to understand what the code does without having to spend a lot of time on it. But also the controls and interactions should be simple for the user.
+6. Security: The code should be secure. Isolate your secrets and keys from the codebase. Do not commit your secrets and keys to the repository. Avoid XSS and CSRF attacks. Enforce the principle of least privilege. Validate user input, etc.
 
 We encourage you to learn from the best practices and design patterns (e.g., https://refactoring.guru/design-patterns/python)
 
@@ -44,7 +42,7 @@ In an industry setting, you will be given user stories or requirements that need
 10. OOP-010: As a datascientist, I would like to view my predictions.
 11. OOP-011: As a datascientist, I would like to create a model run where I can fine-tune an existing model on a new dataset.
 
-More detailed instructions are provided in `INSTRUCTIONS.md` to guide you through these user stories.
+More detailed instructions are provided in INSTRUCTIONS.md to guide you through these user stories.
 
 
 #### 🥷 I-am-not-done-yet suggestions
@@ -67,7 +65,7 @@ You can try implementing the one of the following, we will give a max of 2 point
 ### ⚒ Non-functional requirements
 
 1. Create a streamlit app.
-2. You **must not use automl libraries** (e.g., auto-sklearn, auto-keras, etc.). But you are allowed to use libraries for the ML models (e.g., sklearn, tensorflow, torch, keras, etc.).
+2. You *must not use automl libraries* (e.g., auto-sklearn, auto-keras, etc.). But you are allowed to use libraries for the ML models (e.g., sklearn, tensorflow, torch, keras, etc.).
 3. Feature column types should be automatically inferred from the data.
 4. Task type should be automatically inferred from the data.
 5. Different models should be trained in parallel to evaluate the best model.
@@ -77,7 +75,7 @@ You can try implementing the one of the following, we will give a max of 2 point
 * The code should be documented. You should be able to understand what the code does without having to spend a lot of time on it.
 * Significant design decisions should be documented as well. Each decision should be given an ID. Example:
 
-```
+
 # DSC-0001: Use TypeScript
 # Date: 2021-09-01
 # Decision: Use TypeScript for the project
@@ -86,7 +84,7 @@ You can try implementing the one of the following, we will give a max of 2 point
 # Reason: TypeScript is a superset of JavaScript that adds type safety
 # Limitations: TypeScript is not supported by all browsers
 # Alternatives: propTypes
-```
+
 You can place your decisions in a docs folder in the root of the project.
 E.g. docs/decisions/DSC-0001-use-typescript.md
 
@@ -103,13 +101,13 @@ Some examples include housing prices, second-hand cars, etc.
 
 # Grading & Submission (IMPORTANT)
 
-We have experienced students who do not read the instructions and do not understand how they are graded. You can include `screenshots` in the repo. However, screenshots can be there as a back up incase something goes wrong while executing your code.
+We have experienced students who do not read the instructions and do not understand how they are graded. You can include screenshots in the repo. However, screenshots can be there as a back up incase something goes wrong while executing your code.
 
 Grading will be based on the following criteria:
 
-1. **Functionality**: Does the code work as expected? Does it meet the requirements?
-2. **Code Quality**: Is the code clean and well-structured? Is it easy to read and understand? Are OOP principles followed?
-3. **Documentation**: Is the code well-documented? Are design decisions explained?
+1. *Functionality*: Does the code work as expected? Does it meet the requirements?
+2. *Code Quality*: Is the code clean and well-structured? Is it easy to read and understand? Are OOP principles followed?
+3. *Documentation*: Is the code well-documented? Are design decisions explained?
 
 Regarding the grading composition:
 
@@ -120,65 +118,67 @@ Regarding the grading composition:
    * You should use docstrings (in any format you want to) even if you don't intend on generating HTML documentation.
 
 Concerning the criteria you should focus on, remember to keep in mind the usual concepts from the previous assignments, i.e., curate your style and docstrings, follow OOP principles, avoid code smells...
-You can check for presence/absence of type hints and docstrings with `flake8` using the plugins `flake8-annotations` and `flake8-docstrings` (configure them to filter out the error messages you are not interested in).
+You can check for presence/absence of type hints and docstrings with flake8 using the plugins flake8-annotations and flake8-docstrings (configure them to filter out the error messages you are not interested in).
 
 ## Workload
 
-You are expected to carry out this assignment by **keeping the workload equal** between the two teammates.
+You are expected to carry out this assignment by *keeping the workload equal* between the two teammates.
 You are also allowed to work collaboratively on some of all points.
 In the final part of this markdown, you will see a table where you can keep track of who did what.
-In case the workload will be imbalanced, **we reserve the option to deduct points** according to the disproportion in workload.
+In case the workload will be imbalanced, *we reserve the option to deduct points* according to the disproportion in workload.
 Notice that, in case two students claim to have worked together on the same point, we will assume that the workload has been split equally between the two on that specific requirement.
 
 ## How to get your submission accepted
 
-1. **ALL** Tests must pass, we will not grade code bases the do not pass. Should you have any trouble, please contact our help desk in a timely manner. For helping with this point, we have set up two extra Q&A Labs during the exam week, check the schedule in brightspace.
-2. Mark down in the following table which features that you have implemented. We will not check features that have not been marked as complete. So please fill your `Personal Rubric`. This way we do not miss any of your special additions.
+1. *ALL* Tests must pass, we will not grade code bases the do not pass. Should you have any trouble, please contact our help desk in a timely manner. For helping with this point, we have set up two extra Q&A Labs during the exam week, check the schedule in brightspace.
+2. Mark down in the following table which features that you have implemented. We will not check features that have not been marked as complete. So please fill your Personal Rubric. This way we do not miss any of your special additions.
 3. If needed, include instructions if there are specific ways to run your code.
 
 ### Additional notes on submission acceptance
 
-1. If your code does not run (because of bad imports, non-existing files, etc.), the project will **not** be graded further and a 1.0 will be given.
+1. If your code does not run (because of bad imports, non-existing files, etc.), the project will *not* be graded further and a 1.0 will be given.
    * Thus, remember to push your .csv datasets.
-2. Blatant disregard of OOP principles (e.g., using a largely imperative-style programming in the `autooop` library, consistently not using type hints...) will also result in the project being given a 1.0.
+2. Blatant disregard of OOP principles (e.g., using a largely imperative-style programming in the autooop library, consistently not using type hints...) will also result in the project being given a 1.0.
 
 ## Personal Rubric
 
-These are from `INSTRUCTIONS.md`. Please read this carefully to ensure you can cover all the required requirements.
+These are from INSTRUCTIONS.md. Please read this carefully to ensure you can cover all the required requirements.
 
 Also, mark down the person who implemented the feature. This information will be used for grading purposes.
-If the feature has been implemented by both students, write `both`.
+If the feature has been implemented by both students, write both.
 
 If you did not implement the feature
 
 | Requirement                           | Type (FN/NF) | Implemented by       | Implementation Completed (add X if done) | Comment |
 |-------------------------------------- |--------------|----------------------|--------------------------|---------|         
-| Up-to-date requirements.txt           | NF           |                      |         | |
-| `ML/detect-features`                  | FN           |                      |         | |
-| `ML/artifact`                         | NF           |                      |         | |
-| `ML/feature`                          | NF           |                      |         | |
-| `ML/metric`                           | NF           |                      |         | |
-| `ML/metric/extensions`                | FN           |                      |         | |
-| `ML/model`                            | NF           |                      |         | |
-| `ML/model/extensions`                 | FN           |                      |         | |
-| `ML/pipeline/evaluation`              | FN           |                      |         | | 
-| `ST/page/datasets`                    | NF           |                      |         | |
-| `ST/datasets/management/create`       | FN           |                      |         | |
-| `ST/datasets/management/save`         | FN           |                      |         | |
-| `ST/page/modelling`                   | NF           |                      |         | |
-| `ST/modelling/datasets/list`          | FN           |                      |         | |
-| `ST/modelling/datasets/features`      | FN           |                      |         | |
-| `ST/modelling/models`                 | FN           |                      |         | |
-| `ST/modelling/pipeline/split`         | FN           |                      |         | |
-| `ST/modelling/pipeline/metrics`       | FN           |                      |         | |
-| `ST/modelling/pipeline/summary`       | FN           |                      |         | |
-| `ST/modelling/pipeline/train`         | FN           |                      |         | |
-| `ST/modelling/pipeline/save`          | FN           |                      |         | |
-| `ST/page/deployment`                  | FN           |                      |         | |
-| `ST/deployment/load`                  | FN           |                      |         | |
-| `ST/deployment/predict`               | FN           |                      |         | |
+| Up-to-date requirements.txt           | NF           | Nika                     | X        | |
+| ML/detect-features                  | FN           | Both                     | X        | |
+| ML/artifact                         | NF           | Nika                     | X        | |
+| ML/feature                          | NF           | Nika                     | X        | |
+| ML/metric                           | NF           | Nika                     | X        | |
+| ML/metric/extensions                | FN           | Both                     | X        | |
+| ML/model                            | NF           | Both                     | X        | |
+| ML/model/extensions                 | FN           | Nika                     | X        | |
+| ML/pipeline/evaluation              | FN           | Nika                     | X        | | 
+| ST/page/datasets                    | NF           | Nika                     | X        | |
+| ST/datasets/management/create       | FN           | Both                     | X        | |
+| ST/datasets/management/save         | FN           | Both                     | X        | |
+| ST/page/modelling                   | NF           | Both                     | X        | |
+| ST/modelling/datasets/list          | FN           | Both                     | X        | |
+| ST/modelling/datasets/features      | FN           | Both                     | X        | |
+| ST/modelling/models                 | FN           | Both                     | X        | |
+| ST/modelling/pipeline/split         | FN           | Both                     | X        | |
+| ST/modelling/pipeline/metrics       | FN           | Adri                     | X        | |
+| ST/modelling/pipeline/summary       | FN           | Adri                     | X        | |
+| ST/modelling/pipeline/train         | FN           | Both                     | X        | |
+| ST/modelling/pipeline/save          | FN           | Adri                     | X        | |
+| ST/page/deployment                  | FN           | Adri                     | X        | |
+| ST/deployment/load                  | FN           | Adri                     | X        | |
+| ST/deployment/predict               | FN           | Adri                     | X        | |
 
 If you add extra features, please indicate them below:
 | Requirement                           | Type (FN/NF) | Implemented by       | Implementation Completed (add X if done) | Comment |
 |-------------------------------------- |--------------|----------------------|---------|-----|
-|           |            |                      |         | |
+| Graphed Experiment Reports          |  FN          |  Adri                    | X        | |
+| What-If Analysis                    |  FN          |  Adri                    | X        | |
+| HTML Documentation                  |  NF          |  Nika                    | X        | |
