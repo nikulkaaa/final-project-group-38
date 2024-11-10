@@ -7,11 +7,10 @@ from sklearn.preprocessing import OneHotEncoder
 from io import StringIO
 
 
-def preprocess_features(
-        features: List[Feature],
-        dataset: Dataset,
-        one_hot_encode_target: bool = False
-    ) -> List[Tuple[str, np.ndarray, dict]]:
+def preprocess_features(features: List[Feature],
+                        dataset: Dataset,
+                        one_hot_encode_target: bool = False
+                        ) -> List[Tuple[str, np.ndarray, dict]]:
     """Preprocess features.
 
     Args:

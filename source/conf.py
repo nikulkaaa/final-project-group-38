@@ -18,14 +18,13 @@ release = '2024'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [
-   'sphinx.ext.duration',
-   'sphinx.ext.doctest',
-   'sphinx.ext.autodoc',
-   'sphinx.ext.viewcode', 
-   'sphinx.ext.napoleon',
-   'sphinx.ext.autosummary',
-]
+extensions = ['sphinx.ext.duration',
+              'sphinx.ext.doctest',
+              'sphinx.ext.autodoc',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.napoleon',
+              'sphinx.ext.autosummary',
+              ]
 
 autodoc_mock_imports = ['numpy',
                         'pandas',
@@ -33,12 +32,10 @@ autodoc_mock_imports = ['numpy',
                         'pydantic',
                         'scikit-learn',
                         'seaborn'
-]
+                        ]
 
 templates_path = ['_templates']
 exclude_patterns = []
-
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

@@ -5,6 +5,7 @@ from io import BytesIO
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 
+
 def main() -> None:
     """Streamlit app for managing datasets."""
     st.title('Dataset Management')
@@ -24,6 +25,7 @@ def main() -> None:
     # If the user wishes to view uploaded datasets
     elif action == "View Datasets":
         view_datasets(automl)
+
 
 def create_dataset(automl: AutoMLSystem) -> None:
     """Allows the user to upload and create dataset."""
@@ -46,6 +48,7 @@ def create_dataset(automl: AutoMLSystem) -> None:
             # Save the dataset artifact using the artifact registry
             automl.registry.register(dataset)
             st.success("Dataset created and saved successfully!")
+
 
 def view_datasets(automl: AutoMLSystem) -> None:
     """Allows the user to view existing datasets."""
@@ -72,6 +75,7 @@ def view_datasets(automl: AutoMLSystem) -> None:
             st.dataframe(df)
         except Exception as e:
             st.error(f"Error reading dataset: {e}")
+
 
 if __name__ == "__main__":
     main()

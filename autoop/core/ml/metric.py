@@ -99,8 +99,9 @@ class AveragePrecision(Metric):
 
 class LogLoss(Metric):
     """Class to calculate the logarithmic loss for classification."""
-    def __call__(self, predictions: np.ndarray, ground_truth: np.ndarray) -> float:
-        """Calculates and returns the logarithmic loss to capture confidence in predictions."""
+    def __call__(self, predictions: np.ndarray,
+                 ground_truth: np.ndarray) -> float:
+        """Calculates and returns log loss for confidence in predictions."""
 
         # Clip predictions to prevent log(0) and ensure numerical stability
         eps = 1e-15

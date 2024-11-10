@@ -1,6 +1,7 @@
 
 from pydantic import BaseModel, Field
 
+
 class Feature(BaseModel):
     """A class for a feature of a dataset."""
     name: str = Field(..., description='Name of the Feature')

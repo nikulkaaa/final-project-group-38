@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 import base64
-from typing import Optional, Any, List
+from typing import Optional, object, List
 import pandas as pd
 import uuid
 
@@ -12,7 +12,7 @@ class Artifact(BaseModel):
     """
     name: str = Field(..., description="The name of the artifact")
     asset_path: str = Field(..., description="Path or identifier of the asset")
-    data: Optional[Any] = Field(None, description="Raw data or dataset")
+    data: Optional[object] = Field(None, description="Raw data or dataset")
     encoded_data: Optional[str] = Field(None,
                                         description="Base64 encoded data")
     metadata: Optional[dict] = Field(None,
@@ -38,7 +38,7 @@ class Artifact(BaseModel):
         if self.data is not None:
             self.load_data(self.data)
 
-    def load_data(self, data: Any) -> None:
+    def load_data(self, data: object) -> None:
         """
         Load the data into the artifact.
         If it's a DataFrame or binary data, it will be handled accordingly.
